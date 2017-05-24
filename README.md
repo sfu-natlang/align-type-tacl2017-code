@@ -13,9 +13,8 @@ Joint prediction of word alignment with alignment types
     --source <sourceLang>   [required] source language suffix (suffix of the source train and test data)
     
     --target <targetLang>   [required] target language suffix (suffix of the target train and test data)
-                            
     
-    --source                source file
+    --model <model>         [required] alignment model name. It can be chosen from {ibm1, hmm, ibm1+type+gen, hmm+type+gen)
 ## Citation
 
 If you use this code in your research, please cite the following paper:
