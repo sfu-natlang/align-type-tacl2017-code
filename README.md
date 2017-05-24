@@ -4,17 +4,22 @@ Joint prediction of word alignment with alignment types
 ## Usage
     USAGE: java -jar type-aligner.jar [OPTIONS]
 
-    Option                  description
+    Option                      description
     
-    --train <trainFile>     [required] parallel training corpus prefix
+    --train <trainFile>         [required] parallel training corpus prefix
 
-    --test <testFile>       [required] parallel test corpus prefix
+    --test <testFile>           [required] parallel test corpus prefix
     
-    --source <sourceLang>   [required] source language suffix (suffix of the source train and test data)
+    --source <sourceLang>       [required] source language suffix (suffix of the source train and test data)
     
-    --target <targetLang>   [required] target language suffix (suffix of the target train and test data)
+    --target <targetLang>       [required] target language suffix (suffix of the target train and test data)
     
-    --model <model>         [required] alignment model name. It can be chosen from {ibm1, hmm, ibm1+type+gen, hmm+type+gen)
+    --model <model>             [required] alignment model name. Choose among the implemented models (ibm1, hmm, ibm1+type+gen, hmm+type+gen)
+    --trainSize <trainSize>     [required] size of the training data (number of the sentences from the beginning of the parallel train data to consider for training).
+    --testSize <testSize>       [required] size of the test data (number of sentences from the beginning of the parallel test data).
+    
+    --reference <referenceFile> reference file for the test data which is annotated with gold alignment
+    
 ## Citation
 
 If you use this code in your research, please cite the following paper:
