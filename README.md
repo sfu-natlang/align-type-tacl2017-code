@@ -1,6 +1,6 @@
 # align-type-tacl2017-code
 
-This is the implementation of our TACL paper Joint Prediction of Word Alignment with Alignment Types.
+This is the implementation of our TACL paper "Joint Prediction of Word Alignment with Alignment Types".
 
 ## Features
 - Baseline IBM1
