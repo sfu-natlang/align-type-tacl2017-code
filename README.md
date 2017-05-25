@@ -75,5 +75,5 @@ In order to use the generative model for a machine translation experiment, simpl
 * Anoop Sarkar <anoop@cs.sfu.ca>
 
 ## References
-
-
+- Peter F Brown, Vincent J Della Pietra, Stephen A Della Pietra, and Robert L Mercer. 1993. The mathematics of statistical machine translation: Parameter estimation. Computational linguistics, 19(2):263–311.
+- Franz Josef Och and Hermann Ney. 2003. A systematic comparison of various statistical alignment models. Computational linguistics, 29(1):19–51
