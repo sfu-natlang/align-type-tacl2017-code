@@ -1,6 +1,16 @@
 # align-type-tacl2017-code
-Joint prediction of word alignment with alignment types
 
+This is the implementation of our TACL paper Joint Prediction of Word Alignment with Alignment Types.
+
+## Features
+- Baseline IBM1
+- Baseline HMM-based word alignment (Och and Ney, 2003)
+- Generative models (IBM1+Type+Gen and HMM+Type+Gen) for the joint prediction of word alignment with alignment types
+
+## Citation
+If you use this code in your research, please cite the following paper:
+
+Anahita Mansouri Bigvand, Te Bu, and Anoop Sarkar, "Joint prediction of word alignment with alignment types", *Transactions of the Association for Computational Linguistics* (2017)
 
 ## Usage
     USAGE: java -jar type-aligner.jar [OPTIONS]
@@ -23,7 +33,9 @@ Joint prediction of word alignment with alignment types
    
 
 #### Baselines (IBM1 and HMM)
-We can train a baseline HMM-based word alignment model (Och and Ney, 2003) on a parallel Chinese-English corpus `{<trainFilePrefix>.cn, <trainFilePrefix>.en}`, and then using this trained model compute the Viterbi alignment for a test corpus `{<testFilePrefix>.cn, <testFilePrefix>.en}`. The output alignment file will be saved in `<outputFile>.wa`. To do this, run the following command:
+We can train a baseline HMM-based word alignment model (
+
+and Ney, 2003) on a parallel Chinese-English corpus `{<trainFilePrefix>.cn, <trainFilePrefix>.en}`, and then using this trained model compute the Viterbi alignment for a test corpus `{<testFilePrefix>.cn, <testFilePrefix>.en}`. The output alignment file will be saved in `<outputFile>.wa`. To do this, run the following command:
 ```
 java -jar type-aligner.jar --train <trainFilePrefix> --test testFilePrefix --source cn --target en --trainSize <trainSize> --testSize <testSize> --model hmm --reference <referenceFile> --output <outputFile>
 ```
@@ -57,13 +69,6 @@ For example, to replicate our best results for word alignment task as well as th
 java -jar type-aligner.jar --train <trainFilePrefix> --test testFilePrefix --source cn --target en --trainSize <trainSize> --testSize <testSize> --model hmm+type+gen --reference <referenceFile> --output <outputFile> --goldTrain <goldTrainFile> --POSTaggedTrain <POSTaggedTrainFilePrefix> --POSTaggedTest <POSTaggedTestFilePrefix> --referenceAlignmentAndType <referenceAlignmentAndTypeFile> --augmentedTrain <augmentTrainFilePrefix> --augmentedTrainSize <augmentedTrainSize> --POSTaggedAugmentedTrain <POSTaggedAugmentedTrainFilePrefix>
 ```
 In order to use the generative model for a machine translation experiment, simply test on the augmented data ( `--test <augmentTrainFilePrefix>`) to find the alignment for the `{<augmentTrainFilePrefix>.cn, <augmentTrainFilePrefix>.en}` corpus. The `<testSize>` and `<augmentedTrainSize>` are also the same accordingly.
-
-
-## Citation
-
-If you use this code in your research, please cite the following paper:
-
-Anahita Mansouri Bigvand, Te Bu, and Anoop Sarkar, "Joint prediction of word alignment with alignment types", *Transactions of the Association for Computational Linguistics* (2017)
 
 ## Contacts
 * Anahita Mansouri Bigvand <amansour@cs.sfu.ca>
