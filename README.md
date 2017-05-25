@@ -25,13 +25,42 @@ Joint prediction of word alignment with alignment types
     --augmentedTrain <augmentTrainFilePrefix>   augmented training file prefix. This data is used to augment the training data.
     --augmentedTrainSize <augmentedTrainSize>   augmented training file size. This is a required option if --augmentedTrain is set.
     
+    --goldTrain <goldTrainFile>   gold training file. The file with gold alignment and alignment types.
+    --POSTaggedTrain <POSTaggedTrainFilePrefix>          POS-tagged training file prefix
+    --POSTaggedTest <POSTaggedTestFilePrefix>            POS-tagged test file prefix
+    --referenceAlignmentAndType <referenceAlignmentAndTypeFile>   reference file for the test data which is annotated with gold alignment and alignment type
+    --POSTaggedAugmentedTrain <POSTaggedAugmentedTrainFilePrefix> POS-tagged augmented training file prefix
     
 
-## Examples:
+#### Baselines (IBM1 and HMM)
 We can train a baseline HMM-based word alignment model (Och and Ney, 2003) on a parallel Chinese-English corpus `{<trainFilePrefix>.cn, <trainFilePrefix>.en}`, and then using this trained model compute the Viterbi alignment for a test corpus `{<testFilePrefix>.cn, <testFilePrefix>.en}`. The output alignment file will be saved in `<outputFile>.wa`. To do this, run the following command:
 ```
-java -jar type-aligner.jar --train <trainFilePrefix> --test testFilePrefix --source cn --target en --trainSize <trainSize> --testSize <testSize> --model ibm1 --reference <referenceFile> --output <outputFile>
+java -jar type-aligner.jar --train <trainFilePrefix> --test testFilePrefix --source cn --target en --trainSize <trainSize> --testSize <testSize> --model hmm --reference <referenceFile> --output <outputFile>
 ```
+For baseline IBM1, use `--model ibm1` option instead. 
+
+#### Generative Models (IBM1+Type+Gen and HMM+Type+Gen)
+
+To jointly predict alignment and alignment type, you need a parallel training data which is annotated with gold 
+word alignment and alignment types. The GALE Chinese-English Word Alignment and Tagging Corpus is an example of such a corpus. 
+
+To train a generative model, you need to provide `--goldTrain <goldTrainFile>` which points to the file with gold alignment and alignment types for the corresponding training corpus `{<trainFilePrefix>.cn, <trainFilePrefix>.en}`. 
+For each line (sentence pair) in the training corpus, there is a corresponding line including the gold alignment and alignment types in the `<goldTrainFile>` with a special format. For example, a line from the "GALE Chinese-English Word Alignment and Tagging Corpus" has the following format:
+
+1-2(SEM) 2-3(SEM) 3-5(SEM) 4-7(SEM) 5-6[TEN],8(GIS) 6-9(SEM) 7-10(FUN) 8-11(SEM) 9-12(SEM) 10-13(SEM) 11-14(SEM) 12-15(FUN) 13-16(SEM) 14-17(SEM)
+
+This program works for the above format. Apart from the `--goldTrain <goldTrainFile>` option, `--POSTaggedTrain` and `--POSTaggedTest` are required options for joint prediction of word alignment with alignment types.
+
+where `--POSTaggedTrain <POSTaggedTrainFilePrefix>` and `--POSTaggedTest <POSTaggedTestFilePrefix>` are the prefixes for the POS-tagged train and test corpus files as explained in the paper.
+
+Also, to obtain the precision, recall and F1-score for the joint prediction of word alignment and alignment types, provide the program with `--referenceAlignmentAndType <referenceAlignmentAndTypeFile>` option which indicates the reference file with gold alignment and alignment types. Note that you can still set the `--reference <referenceFile>` option to get the alignment task results. For example to train a HMM+Type+Gen model on the train corpus, and test on the test corpus, and get the results for word alignment task and the joint prediction of word alignment and alignment types task, run the following command:
+```
+java -jar type-aligner.jar --train <trainFilePrefix> --test testFilePrefix --source cn --target en --trainSize <trainSize> --testSize <testSize> --model hmm+type+gen --reference <referenceFile> --output <outputFile> --goldTrain <goldTrainFile> --POSTaggedTrain <POSTaggedTrainFilePrefix> --POSTaggedTest <POSTaggedTestFilePrefix> --referenceAlignmentAndType <referenceAlignmentAndTypeFile>
+```
+##### Augmented Models:
+Since we only have a small amount of training data which is annotated with gold alignment and alignment types, we can augment our training data with a parallel data with no annotation. 
+The only extra parameter we have to set apart from `--augmentedTrain <augmentTrainFilePrefix>` and `--augmentedTrainSize  <augmentedTrainSize>` is `--POSTaggedAugmentedTrain <POSTaggedAugmentedTrainFilePrefix>` which
+specifies the prefix of the POS-tagged augmented data.
 
 ## Citation
 
