@@ -12,6 +12,12 @@ If you use this code in your research, please cite the following paper:
 
 Anahita Mansouri Bigvand, Te Bu, and Anoop Sarkar, "Joint prediction of word alignment with alignment types", *Transactions of the Association for Computational Linguistics* (2017)
 
+## Building Instructions
+To build the code, make sure you have Apache Ant installed on your machine. Set your current working directory to the root directory of the distribution, where the file "build.xml" is located, and then build with the following command:
+```
+ant
+```
+
 ## Usage
     USAGE: java -jar type-aligner.jar [OPTIONS]
 | Option            | description |
