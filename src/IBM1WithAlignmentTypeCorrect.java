@@ -1,13 +1,8 @@
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,8 +42,6 @@ public class IBM1WithAlignmentTypeCorrect extends IBM1WithAlignmentTypePOSTag im
 		for (Pair p: st_count.keySet()){
 			t.put(p, initialValue);
 		}
-		//initialize s probabilities
-		//setSProbabilities();
 		
 		HashMap<Pair, Double> c = new HashMap<Pair, Double>();
 		
@@ -134,7 +127,7 @@ public class IBM1WithAlignmentTypeCorrect extends IBM1WithAlignmentTypePOSTag im
 		
 		int V = 163303;
 		
-		if (t_table_20K.containsKey(fe))
+		if (t_table_20K != null && t_table_20K.containsKey(fe))
 			return t_table_20K.get(fe);
  		else if (t_table.containsKey(fe)){
 			return t_table.get(fe);
@@ -319,38 +312,16 @@ public class IBM1WithAlignmentTypeCorrect extends IBM1WithAlignmentTypePOSTag im
 			return fScore;
 		}
 		
-		private static void serializeObject(Object object, String fileName) throws IOException {
-			FileOutputStream fos1 = new FileOutputStream(fileName);
-	        ObjectOutputStream oos1 = new ObjectOutputStream(fos1);
-	        oos1.writeObject(object);
-	        fos1.close();
-	        oos1.close();
-			
-		}
-		private static Object deserializeObject(String fileName)throws FileNotFoundException, IOException, ClassNotFoundException {
-			FileInputStream fis = new FileInputStream(fileName);
-	    	ObjectInputStream ois = new ObjectInputStream(fis);
-	    	Object object =  ois.readObject();
-	    	ois.close();
-			return object;
-		}
+		
 		public static void augmentedModelExperimentMain(int trainingSize, int testSize, String trainPrefix
 		, String sourceLang, String targetLang, String testPrefix, String referenceFile, String output, 
 		String goldTrain, String POSTaggedTrainPrefix, String POSTaggedTestPrefix, String referenceAlignmentAndType
 		, String augmentedTrainPrefix, String POSTaggedAugmentedTrainPrefix, int augmentedTrainSize) throws IOException, ClassNotFoundException{
-			//TO DO
-			IBM1WithAlignmentTypePOSTag ibm1TaggedModel = new IBM1WithAlignmentTypePOSTag();
-			//int trainingSize = 20357;//2373245;//18000;2373245
-	        //int testSize = 1956;//20357;//2357;20357
-	        
-	        //String[][] trainTritextTaggedModel = IBM_Model1.readTritext("data-te/train.20k.tags.cn","data-te/train.20k.tags.en","data-te/train.20k.seg.cln.wa",trainingSize);
-			//String[][] testTritextTaggedModel = IBM_Model1.readTritext("data-te/test.tags.cn","data-te/test.tags.en","data-te/test.seg.cln.wa",testSize);
 
+			IBM1WithAlignmentTypePOSTag ibm1TaggedModel = new IBM1WithAlignmentTypePOSTag();
+			
 			String[][] trainTritextTaggedModel = IBM_Model1.readTritext(POSTaggedTrainPrefix+"."+sourceLang, POSTaggedTrainPrefix+"."+targetLang, goldTrain, trainingSize);
 			String[][] testBitextTaggedModel = IBM_Model1.readBitext(POSTaggedTestPrefix+"."+sourceLang, POSTaggedTestPrefix+"."+targetLang, testSize);
-			
-			//String[][] trainTritext = IBM_Model1.readTritext("data-te/train.20k.seg.cln.cn","data-te/train.20k.seg.cln.en","data-te/train.20k.seg.cln.wa",trainingSize);
-			//String[][] testTritext = IBM_Model1.readTritext("data-te/test.seg.cln.cn","data-te/test.seg.cln.en","data-te/test.seg.cln.wa",testSize);
 			
 			String[][] trainTritext = IBM_Model1.readTritext(trainPrefix+"."+sourceLang, trainPrefix+"."+targetLang, goldTrain, trainingSize);
 			String[][] testBitext = IBM_Model1.readBitext(testPrefix+"."+sourceLang, testPrefix+"."+targetLang, testSize);
@@ -358,6 +329,8 @@ public class IBM1WithAlignmentTypeCorrect extends IBM1WithAlignmentTypePOSTag im
 			
 			ibm1TaggedModel.initializeCounts(trainTritextTaggedModel);
 			ibm1TaggedModel.setSProbabilities(ibm1TaggedModel.fe_count, ibm1TaggedModel.total_f_e_h);
+			
+			System.out.println("Training an IBM1 model on the tagged bitext of size " + trainTritextTaggedModel.length + ".");
 			ibm1TaggedModel.EM_IBM1(ibm1TaggedModel.f_count, ibm1TaggedModel.e_count, ibm1TaggedModel.fe_count, trainTritextTaggedModel);
 			
 			
@@ -368,19 +341,20 @@ public class IBM1WithAlignmentTypeCorrect extends IBM1WithAlignmentTypePOSTag im
 			//set lambdas
 			ibm1.setLambdas(0.9999999999,9.999900827395436E-11,1.000000082740371E-15);
 			ibm1.setSProbabilities(ibm1.fe_count, ibm1.total_f_e_h);
+			System.out.println("Training an IBM1 model on the bitext of size " + trainTritextTaggedModel.length + ".");
 			HashMap<Pair, Double> t_table_20K = ibm1.EM_IBM1(ibm1.f_count, ibm1.e_count, ibm1.fe_count, trainTritext);
 			
 			//Augmented Model
-			//trainingSize = 1020357; 
-			//String[][] train20KHKTritextTaggedModel = IBM_Model1.readTritext("data-te/train.20k+hk.tags.cn","data-te/train.20k+hk.tags.en","data-te/train.20k.seg.cln.wa",trainingSize);
+			
 			String[][] train20KHKTritextTaggedModel = IBM_Model1.readTritext(POSTaggedAugmentedTrainPrefix+"."+sourceLang,POSTaggedAugmentedTrainPrefix+"."+targetLang,goldTrain,augmentedTrainSize);
 			
 			IBM1WithAlignmentTypePOSTag ibm120KHKTagged = new IBM1WithAlignmentTypePOSTag();
 			ibm120KHKTagged.initializeCountsOfAugmentedModel(train20KHKTritextTaggedModel);
 			ibm120KHKTagged.setSProbabilities(ibm1TaggedModel.fe_count, ibm1TaggedModel.total_f_e_h);
+			System.out.println("Training an IBM1 model on the tagged bitext of size " + train20KHKTritextTaggedModel.length + ".");
 			ibm120KHKTagged.EM_IBM1(ibm120KHKTagged.f_count, ibm120KHKTagged.e_count, ibm120KHKTagged.fe_count, train20KHKTritextTaggedModel);
 			
-			//String[][] train20KHKTritext = IBM_Model1.readTritext("data-te/train.20k+hk.cn","data-te/train.20k+hk.en","data-te/train.20k.seg.cln.wa",trainingSize);
+			
 			String[][] train20KHKTritext = IBM_Model1.readTritext(augmentedTrainPrefix+"."+sourceLang, augmentedTrainPrefix+"."+targetLang,goldTrain, augmentedTrainSize);
 			
 			IBM1WithAlignmentTypeCorrect ibm120KHK = new IBM1WithAlignmentTypeCorrect(ibm120KHKTagged.s, train20KHKTritextTaggedModel);
@@ -388,112 +362,39 @@ public class IBM1WithAlignmentTypeCorrect extends IBM1WithAlignmentTypePOSTag im
 			ibm120KHK.setTTable20K(t_table_20K);
 			ibm120KHK.setLambdas(0.9999999999,9.999900827395436E-11,1.000000082740371E-15);
 			ibm120KHK.setSProbabilities(ibm1.fe_count, ibm1.total_f_e_h);
+			System.out.println("Training an IBM1 model on the bitext of size " + train20KHKTritext.length + ".");
 			HashMap<Pair, Double> t_fe = ibm120KHK.EM_IBM1(ibm120KHK.f_count, ibm120KHK.e_count, ibm120KHK.fe_count, train20KHKTritext);
 			
-			System.out.println("t table sizes " + t_table_20K.size() + " " + t_fe.size());
-			
-			System.out.println("\n WA:");			
+			System.out.println("\nWA:");			
 			ArrayList<String> ibmModelAlignment = ibm120KHK.print_alignment_SD_ibm1(testBitext, testBitextTaggedModel, t_fe, output, false);
-			//ArrayList<String> reference = ibm120KHK.convertFileToArrayList("data-te/test.seg.cln.gold.wa");
+			
 			if (referenceFile != null){
 				ArrayList<String> reference = ibm120KHK.convertFileToArrayList(referenceFile);
 				ibm120KHK.gradeAlignmentWithType(testSize, testBitext, reference, ibmModelAlignment);
 			}
-			System.out.println("\n WA+Tag:");
+			System.out.println("\nWA+Type:");
 			ibmModelAlignment = ibm120KHK.print_alignment_SD_ibm1(testBitext, testBitextTaggedModel, t_fe, output+".type", true);
-			//reference = ibm120KHK.convertFileToArrayList("data-te/test.seg.cln.wa");
+			
 			if (referenceAlignmentAndType != null){
 				ArrayList<String> reference = ibm120KHK.convertFileToArrayList(referenceAlignmentAndType);
 				ibm120KHK.gradeAlignmentWithTypeWAPlusTag(testSize, testBitext, reference, ibmModelAlignment);
 			}
 			
 		}
-		public static void augmentedModelExperimentMain()throws IOException, ClassNotFoundException{
-			IBM1WithAlignmentTypePOSTag ibm1TaggedModel = new IBM1WithAlignmentTypePOSTag();
-			int trainingSize = 20357;//2373245;//18000;2373245
-	        int testSize = 1956;//20357;//2357;20357
-	        
-	        String[][] trainTritextTaggedModel = IBM_Model1.readTritext("data-te/train.20k.tags.cn","data-te/train.20k.tags.en","data-te/train.20k.seg.cln.wa",trainingSize);
-			String[][] testTritextTaggedModel = IBM_Model1.readTritext("data-te/test.tags.cn","data-te/test.tags.en","data-te/test.seg.cln.wa",testSize);
-
-			String[][] trainTritext = IBM_Model1.readTritext("data-te/train.20k.seg.cln.cn","data-te/train.20k.seg.cln.en","data-te/train.20k.seg.cln.wa",trainingSize);
-			String[][] testTritext = IBM_Model1.readTritext("data-te/test.seg.cln.cn","data-te/test.seg.cln.en","data-te/test.seg.cln.wa",testSize);
-
-			/*ibm1TaggedModel.initializeCounts(trainTritextTaggedModel);
-			ibm1TaggedModel.setSProbabilities(ibm1TaggedModel.fe_count, ibm1TaggedModel.total_f_e_h);
-			ibm1TaggedModel.EM_IBM1(ibm1TaggedModel.f_count, ibm1TaggedModel.e_count, ibm1TaggedModel.fe_count, trainTritextTaggedModel);
-			
-			
-			IBM1WithAlignmentTypeCorrect ibm1 = new IBM1WithAlignmentTypeCorrect(ibm1TaggedModel.s, trainTritextTaggedModel);
-			
-			ibm1.initializeCounts(trainTritext);
-			
-			//set lambdas
-			ibm1.setLambdas(0.9999999999,9.999900827395436E-11,1.000000082740371E-15);
-			ibm1.setSProbabilities(ibm1.fe_count, ibm1.total_f_e_h);
-			HashMap<Pair, Double> t_table_20K = ibm1.EM_IBM1(ibm1.f_count, ibm1.e_count, ibm1.fe_count, trainTritext);
-			
-			serializeObject(ibm1, "ibm1_Aug20");
-			
-			serializeObject(t_table_20K, "t_table20kIBM_Aug20");
-			*/
-			IBM1WithAlignmentTypeCorrect ibm1 = (IBM1WithAlignmentTypeCorrect)deserializeObject("ibm1_Aug20");
-			HashMap<Pair, Double> t_table_20K = (HashMap<Pair, Double>)deserializeObject("t_table20kIBM_Aug20");
-			
-			//Augmented Model
-			trainingSize = 1020357; 
-			String[][] train20KHKTritextTaggedModel = IBM_Model1.readTritext("data-te/train.20k+hk.tags.cn","data-te/train.20k+hk.tags.en","data-te/train.20k.seg.cln.wa",trainingSize);
-			
-			/*IBM1WithAlignmentTypePOSTag ibm120KHKTagged = new IBM1WithAlignmentTypePOSTag();
-			ibm120KHKTagged.initializeCountsOfAugmentedModel(train20KHKTritextTaggedModel);
-			ibm120KHKTagged.setSProbabilities(ibm1TaggedModel.fe_count, ibm1TaggedModel.total_f_e_h);
-			ibm120KHKTagged.EM_IBM1(ibm120KHKTagged.f_count, ibm120KHKTagged.e_count, ibm120KHKTagged.fe_count, train20KHKTritextTaggedModel);
-			serializeObject(ibm120KHKTagged.s, "s_ibm120HKTagged_Aug20");
-			*/
-			HashMap<Triple<String, String, Integer>, Double> s_ibm120KHKTagged = (HashMap<Triple<String, String, Integer>, Double>)deserializeObject("s_ibm120HKTagged_Aug20");
-			
-			String[][] train20KHKTritext = IBM_Model1.readTritext("data-te/train.20k+hk.cn","data-te/train.20k+hk.en","data-te/train.20k.seg.cln.wa",trainingSize);
-			IBM1WithAlignmentTypeCorrect ibm120KHK = new IBM1WithAlignmentTypeCorrect(s_ibm120KHKTagged, train20KHKTritextTaggedModel);
-			ibm120KHK.initializeCountsOfAugmentedModel(train20KHKTritext);
-			ibm120KHK.setTTable20K(t_table_20K);
-			ibm120KHK.setLambdas(0.9999999999,9.999900827395436E-11,1.000000082740371E-15);
-			ibm120KHK.setSProbabilities(ibm1.fe_count, ibm1.total_f_e_h);
-			HashMap<Pair, Double> t_fe = ibm120KHK.EM_IBM1(ibm120KHK.f_count, ibm120KHK.e_count, ibm120KHK.fe_count, train20KHKTritext);
-			
-			System.out.println("t table sizes " + t_table_20K.size() + " " + t_fe.size());
-			
-			System.out.println("\n WA:");			
-			ArrayList<String> ibmModelAlignment = ibm120KHK.print_alignment_SD_ibm1(testTritext, testTritextTaggedModel, t_fe, "alignment_WA", false);
-			ArrayList<String> reference = ibm120KHK.convertFileToArrayList("data-te/test.seg.cln.gold.wa");
-			ibm120KHK.gradeAlignmentWithType(testSize, testTritext, reference, ibmModelAlignment);
-			
-			System.out.println("\n WA+Tag:");
-			ibmModelAlignment = ibm120KHK.print_alignment_SD_ibm1(testTritext, testTritextTaggedModel, t_fe, "alignment_WA+Tag", true);
-			reference = ibm120KHK.convertFileToArrayList("data-te/test.seg.cln.wa");
-			ibm120KHK.gradeAlignmentWithTypeWAPlusTag(testSize, testTritext, reference, ibmModelAlignment);
 		
-		}
 		public static void fScoreExperiment(int trainingSize, int testSize, String trainPrefix
 				, String sourceLang, String targetLang, String testPrefix, String referenceFile, String output, 
 				String goldTrainPrefix, String POSTaggedTrainPrefix, String POSTaggedTestPrefix, String referenceAlignmentAndType) throws IOException{
 			IBM1WithAlignmentTypePOSTag ibm1TaggedModel = new IBM1WithAlignmentTypePOSTag();
-			//int trainingSize = 20357;//2373245;//18000;2373245
-	        //int testSize = 1956;//20357;//2357;20357
-	        
-	        //String[][] trainTritextTaggedModel = IBM_Model1.readTritext("data-te/train.20k.tags.cn","data-te/train.20k.tags.en","data-te/train.20k.seg.cln.wa",trainingSize);
-			//String[][] testTritextTaggedModel = IBM_Model1.readTritext("data-te/test.tags.cn","data-te/test.tags.en","data-te/test.seg.cln.wa",testSize);
-			System.out.println(POSTaggedTrainPrefix+"."+sourceLang);
-			System.out.println(POSTaggedTrainPrefix+"."+targetLang);
-			System.out.println(goldTrainPrefix);
+			
 			String[][] trainTritextTaggedModel = IBM_Model1.readTritext(POSTaggedTrainPrefix+"."+sourceLang, POSTaggedTrainPrefix+"."+targetLang, goldTrainPrefix, trainingSize);
 			String[][] testBitextTaggedModel = IBM_Model1.readBitext(POSTaggedTestPrefix+"."+sourceLang, POSTaggedTestPrefix+"."+targetLang, testSize);
 			
 			ibm1TaggedModel.initializeCounts(trainTritextTaggedModel);
 			ibm1TaggedModel.setSProbabilities(ibm1TaggedModel.fe_count, ibm1TaggedModel.total_f_e_h);
+			System.out.println("Training an IBM1 model on the tagged bitext of size " + trainTritextTaggedModel.length + ".");
 			ibm1TaggedModel.EM_IBM1(ibm1TaggedModel.f_count, ibm1TaggedModel.e_count, ibm1TaggedModel.fe_count, trainTritextTaggedModel);
 			
-			//String[][] trainTritext = IBM_Model1.readTritext("data-te/train.20k.seg.cln.cn","data-te/train.20k.seg.cln.en","data-te/train.20k.seg.cln.wa",trainingSize);
-			//String[][] testTritext = IBM_Model1.readTritext("data-te/test.seg.cln.cn","data-te/test.seg.cln.en","data-te/test.seg.cln.wa",testSize);
 			String[][] trainTritext = IBM_Model1.readTritext(trainPrefix+"."+sourceLang, trainPrefix+"."+targetLang, goldTrainPrefix, trainingSize);
 			String[][] testBitext = IBM_Model1.readBitext(testPrefix+"."+sourceLang, testPrefix+"."+targetLang, testSize);
 			
@@ -505,67 +406,26 @@ public class IBM1WithAlignmentTypeCorrect extends IBM1WithAlignmentTypePOSTag im
 			ibm1.setLambdas(0.9999999999,9.999900827395436E-11,1.000000082740371E-15);
 			
 			ibm1.setSProbabilities(ibm1.fe_count, ibm1.total_f_e_h);
-			
+			System.out.println("Training an IBM1 model on the bitext of size " + trainTritext.length + ".");
 			HashMap<Pair, Double> t_fe = ibm1.EM_IBM1(ibm1.f_count, ibm1.e_count, ibm1.fe_count, trainTritext);
-			System.out.println("length " + trainTritext.length);
 			
-			System.out.println("\n WA:");			
+			
+			System.out.println("\nWA:");			
 			ArrayList<String> ibmModelAlignment = ibm1.print_alignment_SD_ibm1(testBitext, testBitextTaggedModel, t_fe, output , false);
-			//ArrayList<String> reference = ibm1.convertFileToArrayList("data-te/test.seg.cln.gold.wa");
+			
 			if (referenceFile != null){
 				ArrayList<String> reference = ibm1.convertFileToArrayList(referenceFile);
 				ibm1.gradeAlignmentWithType(testSize, testBitext, reference, ibmModelAlignment);
 			}
 			
-			System.out.println("\n WA+Tag:");
+			System.out.println("\nWA+Type:");
 			ibmModelAlignment = ibm1.print_alignment_SD_ibm1(testBitext, testBitextTaggedModel, t_fe, output+".type", true);
-			//reference = ibm1.convertFileToArrayList("data-te/test.seg.cln.wa");
+			
 			if (referenceAlignmentAndType != null){
 				ArrayList<String> reference = ibm1.convertFileToArrayList(referenceAlignmentAndType);
 				ibm1.gradeAlignmentWithTypeWAPlusTag(testSize, testBitext, reference, ibmModelAlignment);
 			}
 
 		}
-		public static void fScoreExperiment() throws IOException{
-			IBM1WithAlignmentTypePOSTag ibm1TaggedModel = new IBM1WithAlignmentTypePOSTag();
-			int trainingSize = 20357;//2373245;//18000;2373245
-	        int testSize = 1956;//20357;//2357;20357
-	        
-	        String[][] trainTritextTaggedModel = IBM_Model1.readTritext("data-te/train.20k.tags.cn","data-te/train.20k.tags.en","data-te/train.20k.seg.cln.wa",trainingSize);
-			String[][] testTritextTaggedModel = IBM_Model1.readTritext("data-te/test.tags.cn","data-te/test.tags.en","data-te/test.seg.cln.wa",testSize);
-
-			ibm1TaggedModel.initializeCounts(trainTritextTaggedModel);
-			ibm1TaggedModel.setSProbabilities(ibm1TaggedModel.fe_count, ibm1TaggedModel.total_f_e_h);
-			ibm1TaggedModel.EM_IBM1(ibm1TaggedModel.f_count, ibm1TaggedModel.e_count, ibm1TaggedModel.fe_count, trainTritextTaggedModel);
-			
-			String[][] trainTritext = IBM_Model1.readTritext("data-te/train.20k.seg.cln.cn","data-te/train.20k.seg.cln.en","data-te/train.20k.seg.cln.wa",trainingSize);
-			String[][] testTritext = IBM_Model1.readTritext("data-te/test.seg.cln.cn","data-te/test.seg.cln.en","data-te/test.seg.cln.wa",testSize);
-			
-			IBM1WithAlignmentTypeCorrect ibm1 = new IBM1WithAlignmentTypeCorrect(ibm1TaggedModel.s, trainTritextTaggedModel);
-			
-			ibm1.initializeCounts(trainTritext);
-			
-			//set lambdas
-			ibm1.setLambdas(0.9999999999,9.999900827395436E-11,1.000000082740371E-15);
-			
-			ibm1.setSProbabilities(ibm1.fe_count, ibm1.total_f_e_h);
-			
-			HashMap<Pair, Double> t_fe = ibm1.EM_IBM1(ibm1.f_count, ibm1.e_count, ibm1.fe_count, trainTritext);
-			System.out.println("length " + trainTritext.length);
-			
-			System.out.println("\n WA:");			
-			ArrayList<String> ibmModelAlignment = ibm1.print_alignment_SD_ibm1(testTritext, testTritextTaggedModel, t_fe, "alignment_WA", false);
-			ArrayList<String> reference = ibm1.convertFileToArrayList("data-te/test.seg.cln.gold.wa");
-			ibm1.gradeAlignmentWithType(testSize, testTritext, reference, ibmModelAlignment);
-			
-			System.out.println("\n WA+Tag:");
-			ibmModelAlignment = ibm1.print_alignment_SD_ibm1(testTritext, testTritextTaggedModel, t_fe, "alignment_WA+Tag", true);
-			reference = ibm1.convertFileToArrayList("data-te/test.seg.cln.wa");
-			ibm1.gradeAlignmentWithTypeWAPlusTag(testSize, testTritext, reference, ibmModelAlignment);
-			
-		}
-		public static void main(String[] args) throws IOException, ClassNotFoundException {
-		//	fScoreExperiment();
-			augmentedModelExperimentMain();
-		}
+		
 }

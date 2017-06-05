@@ -189,7 +189,7 @@ public class HMMWithNullForTuningTe implements Serializable{
 		int N = NandtargetLengthSet.a;
 		targetLengthSet = NandtargetLengthSet.b;
 		
-		System.out.println("N "+N);
+		//System.out.println("N "+N);
 		GenericPair<HashMap<Pair, Integer>, HashMap<Integer, Pair>> indexBiwordPair = mapBitextToInt(sd_count);
 		HashMap<Pair, Integer> indexMap = indexBiwordPair.a;
 		HashMap<Integer, Pair> biword = indexBiwordPair.b;
@@ -236,12 +236,12 @@ public class HMMWithNullForTuningTe implements Serializable{
 	        	
 	        	
 	        	double[][] beta_hat = backwardWithTScaled(a, pi, y, N, T, x, t_table, c_scaled);
-	        	long end = System.currentTimeMillis();
+	        	
 	        	
 	        	
 	        	double[][] gamma = new double[N+1][T+1];
 	        	
-	        	long start = System.currentTimeMillis();
+	        	
 	        	//Setting gamma
 	        	for (int t = 1; t < T; t++){
 	        		logLikelihood += -1*Math.log(c_scaled[t]);
@@ -257,7 +257,7 @@ public class HMMWithNullForTuningTe implements Serializable{
         			
         			totalGammaDeltaOverAllObservations_t_i[indexMap.get(new Pair(y[t-1], x[i-1])).intValue()] += gamma[i][t];
         		}
-	        	end = System.currentTimeMillis();
+	        	
 	        	
 	        	
 	        	
@@ -279,20 +279,19 @@ public class HMMWithNullForTuningTe implements Serializable{
 	        		for (int l = 1; l < N+1; l++)
 	        			totalC_l_Minus_iOverAllObservations[i][N] += (c.containsKey(l-i)? c.get(l-i) : 0);
 	        	}
-	        	end = System.currentTimeMillis();
+	        	
 	        	
 	        	for (int i = 1; i < N+1; i++)
 	        		totalGamma1OverAllObservations[i] += gamma[i][1];
 
-	        	start = System.currentTimeMillis();
+	        	
 			
 	        }//end of loop over bitext
 
 
-	        long end = System.currentTimeMillis();
-	        long start = end;
 	        
-	        System.out.println("likelihood " + logLikelihood);
+	        
+	        System.out.println("log likelihood " + logLikelihood);
 			N = totalGamma1OverAllObservations.length - 1;
 			
 				for (int k = 0; k < sd_size ; k++){
@@ -308,8 +307,8 @@ public class HMMWithNullForTuningTe implements Serializable{
 				}
 			
 			
-			end = System.currentTimeMillis();
-			System.out.println("time spent in the end of E-step: " + (end-start)/1000.0 );
+			long end = System.currentTimeMillis();
+			
 			System.out.println("time spent in E-step: " + (end-start0)/1000.0 );
 			
 			int twoN = 2*N;
@@ -321,7 +320,7 @@ public class HMMWithNullForTuningTe implements Serializable{
 			t_table = new HashMap<Pair, Double>();
 			
 			
-			System.out.println("set " + targetLengthSet);
+			//System.out.println("set " + targetLengthSet);
 			for (int I : targetLengthSet){
 				for (int i = 1; i < I+1; i++){
 					for (int j = 1; j < I+1; j++)
@@ -538,66 +537,26 @@ public class HMMWithNullForTuningTe implements Serializable{
 	public static void mainHMM(int trainingSize, int testSize, String trainPrefix
 			, String sourceLang, String targetLang, String testPrefix, String referenceFile, String alignmentFile) throws IOException{
 		IBM_Model1 ibm1 = new IBM_Model1();
-		//int trainingSize = 20357;
-        //int testSize = 1956;
-		//String[][] trainBitext = ibm1.readBitext("data-te/train.20k.seg.cln.cn","data-te/train.20k.seg.cln.en",trainingSize);
-		//String[][] testBitext = ibm1.readBitext("data-te/test.seg.cln.cn","data-te/test.seg.cln.en",testSize);
+	
 		String[][] trainBitext = IBM_Model1.readBitext(trainPrefix+"."+sourceLang, trainPrefix+"."+targetLang, trainingSize);
 		String[][] testBitext = IBM_Model1.readBitext(testPrefix+"."+sourceLang, testPrefix+"."+targetLang, testSize);
 		
-//		String[][] trainBitext = ibm1.readBitext("data-te/train.18k.seg.cln.cn","data-te/train.18k.seg.cln.en",trainingSize);
-//		String[][] testBitext = ibm1.readBitext("data-te/train.2k.seg.cln.cn","data-te/train.2k.seg.cln.en",testSize);
-		//ibm1.computeSourceTargetCount(trainBitext);
 		
 		ibm1.initializeCountsWithoutSets(trainBitext);
-		System.out.println("length " + trainBitext.length);
+		System.out.println("Training an IBM1 model on the bitext of size " + trainBitext.length + ".");
 		HashMap<Pair, Double> t_fe = ibm1.EM_IBM1(ibm1.f_count, ibm1.e_count, ibm1.fe_count, trainBitext);
 		HMMWithNullForTuningTe hmmL = new HMMWithNullForTuningTe(t_fe);
+		System.out.println("Training an HMM model on the bitext of size " + trainBitext.length + ".");
 		hmmL.baumWelch(trainBitext, ibm1.f_count, ibm1.fe_count);
 		
-		//hmmL.p0H = Double.parseDouble(args[0]);
-		//hmmL.nullEmissionProb = Double.parseDouble(args[1]); 
 		hmmL.multiplyOneMinusP0H(trainBitext, hmmL.p0H);
 		
-		System.out.println("p0H " + hmmL.p0H + " nullEmissionProb" + hmmL.nullEmissionProb);
-
 		ArrayList<String> hmmModelAlignment = hmmL.findBestAlignmentsForAll_AER(testBitext, testSize, alignmentFile);
-	//	ArrayList<String> hmmModelAlignment = hmmL.findBestAlignmentsForAll_AER(trainBitext, trainingSize, "aligned.clean.20k.en-cn");
-	//	ArrayList<String> reference = ibm1.convertFileToArrayList("data-te/test.seg.cln.gold.wa");
 		if (referenceFile != null){
 			ArrayList<String> reference = ibm1.convertFileToArrayList(referenceFile);
-	//	ArrayList<String> reference = ibm1.convertFileToArrayList("data-te/train.2k.seg.cln.gold.wa");
 			ibm1.gradeAlignmentWithType(testSize, testBitext, reference, hmmModelAlignment);
 		}
 	}
-	public static void main(String[] args) throws IOException, ClassNotFoundException{
-		IBM_Model1 ibm1 = new IBM_Model1();
-		int trainingSize = 20357;
-        int testSize = 1956;
-		String[][] trainBitext = IBM_Model1.readBitext("data-te/train.20k.seg.cln.cn","data-te/train.20k.seg.cln.en",trainingSize);
-		String[][] testBitext = IBM_Model1.readBitext("data-te/test.seg.cln.cn","data-te/test.seg.cln.en",testSize);
-		
-//		String[][] trainBitext = ibm1.readBitext("data-te/train.18k.seg.cln.cn","data-te/train.18k.seg.cln.en",trainingSize);
-//		String[][] testBitext = ibm1.readBitext("data-te/train.2k.seg.cln.cn","data-te/train.2k.seg.cln.en",testSize);
-		//ibm1.computeSourceTargetCount(trainBitext);
-		
-		ibm1.initializeCountsWithoutSets(trainBitext);
-		System.out.println("length " + trainBitext.length);
-		HashMap<Pair, Double> t_fe = ibm1.EM_IBM1(ibm1.f_count, ibm1.e_count, ibm1.fe_count, trainBitext);
-		HMMWithNullForTuningTe hmmL = new HMMWithNullForTuningTe(t_fe);
-		hmmL.baumWelch(trainBitext, ibm1.f_count, ibm1.fe_count);
-		
-		//hmmL.p0H = Double.parseDouble(args[0]);
-		//hmmL.nullEmissionProb = Double.parseDouble(args[1]); 
-		hmmL.multiplyOneMinusP0H(trainBitext, hmmL.p0H);
-		
-		System.out.println("p0H " + hmmL.p0H + " nullEmissionProb" + hmmL.nullEmissionProb);
-
-		ArrayList<String> hmmModelAlignment = hmmL.findBestAlignmentsForAll_AER(testBitext, testSize, "alignment");
-	//	ArrayList<String> hmmModelAlignment = hmmL.findBestAlignmentsForAll_AER(trainBitext, trainingSize, "aligned.clean.20k.en-cn");
-		ArrayList<String> reference = ibm1.convertFileToArrayList("data-te/test.seg.cln.gold.wa");
-	//	ArrayList<String> reference = ibm1.convertFileToArrayList("data-te/train.2k.seg.cln.gold.wa");
-		ibm1.gradeAlignmentWithType(testSize, testBitext, reference, hmmModelAlignment);
-	}
+	
 	
 }

@@ -15,17 +15,16 @@ public class HMMWithAlignmentTypePOSTag implements Serializable{
 	private static final long serialVersionUID = 1L;
  
 	String[][] bitext_fe;
-//	HashMap<String, Integer> f_count = new HashMap<String, Integer>();
+
 	HashMap<String, Integer> e_count = new HashMap<String, Integer>();
-	//HashMap<Pair, Integer> fe_count = new HashMap<Pair, Integer>();
 	
 	protected double[][][] a;
 	
 	protected HashMap<Pair, Double> t_table;
 	
 	protected double[] pi;
-	
-	protected int H = 11;  //number of alignment types
+
+	protected int H = 11;  /**number of alignment types**/
 	
 	protected HashMap<Triple<String, String, Integer>, Double> s;
 	
@@ -33,7 +32,6 @@ public class HMMWithAlignmentTypePOSTag implements Serializable{
 	
 	HashMap<String,Integer> tagMap = new HashMap<String, Integer>();
 	
-//	HashMap<Pair, Double> count_fe;		//for smoothing t parameters in viterbi
 	
 	HashSet<Integer> targetLengthSet;
 	
@@ -270,7 +268,7 @@ public class HMMWithAlignmentTypePOSTag implements Serializable{
 		
 		I = N;
 		
-		System.out.println("N "+N);
+		//System.out.println("N "+N);
 		GenericPair<HashMap<Pair, Integer>, HashMap<Integer, Pair>> indexBiwordPair = mapBitextToInt(sd_count);
 		HashMap<Pair, Integer> indexMap = indexBiwordPair.a;
 		HashMap<Integer, Pair> biword = indexBiwordPair.b;
@@ -314,18 +312,18 @@ public class HMMWithAlignmentTypePOSTag implements Serializable{
 	        	
 	        	if (iteration == 0)
 	        		initializeModel(N);
-	        	long start = System.currentTimeMillis();
-	        	GenericPair<double[][], double[]> alphaHatC = forwardWithTScaled(a, pi, y, N, T, x, t_table);
-	        	long end = System.currentTimeMillis();
 	        	
-	        	start = end;
+	        	GenericPair<double[][], double[]> alphaHatC = forwardWithTScaled(a, pi, y, N, T, x, t_table);
+	        	
+	        	
+	        	
 	        	
 	        	double[][] alpha_hat = alphaHatC.a;
 	        	double[] c_scaled = alphaHatC.b;
 	        	
 	        	
 	        	double[][] beta_hat = backwardWithTScaled(a, pi, y, N, T, x, t_table, c_scaled);
-	        	end = System.currentTimeMillis();
+	        	
 	        	
 	        	
 	        	
@@ -334,7 +332,7 @@ public class HMMWithAlignmentTypePOSTag implements Serializable{
 	        	double[][][] xi = new double[N+1][N+1][T+1];
 	        	
 	        	
-	        	start = System.currentTimeMillis();
+	        	
 	        	//Setting gamma
 	        	for (int t = 1; t < T; t++){
 	        		logLikelihood += -1*Math.log(c_scaled[t]);
@@ -373,18 +371,18 @@ public class HMMWithAlignmentTypePOSTag implements Serializable{
 	        			}
         			}
         		}
-	        	end = System.currentTimeMillis();
+	        	
 	        	
 	        	//Setting xi
-	        	start = System.currentTimeMillis();
+	        	
 	        	for (t = 1; t < T; t++)
 	        		for (int i = 1; i < N+1; i++)
 	        			for (int j = 1; j < N+1; j++)
 	        				xi[i][j][t] = alpha_hat[i][t]*a[i][j][N]*t_table.get(new Pair(y[t],x[j-1]))*beta_hat[j][t+1];
-	        	end = System.currentTimeMillis();
 	        	
 	        	
-	        	start = System.currentTimeMillis();
+	        	
+	        	
 	        	for (int i = 1; i < N+1; i++)
 	        		totalGamma1OverAllObservations[i] += gamma[i][1];
 	        	for (int d = -N-1; d < N + 1; d++)
@@ -404,15 +402,15 @@ public class HMMWithAlignmentTypePOSTag implements Serializable{
 	        		for (int l = 1; l < N+1; l++)
 	        			totalC_l_Minus_iOverAllObservations[i][N] += c.get(l-i);
 	        	}
-	        	end = System.currentTimeMillis();
-	        	start = System.currentTimeMillis();
+	        	
+	        	
 	        		
 	        	//printArray(totalC_j_Minus_iOverAllObservations);
 	        }//end of loop over bitext
-	        long end = System.currentTimeMillis();
-	        long start = end;
 	        
-	        System.out.println("likelihood " + logLikelihood);
+	        
+	        
+	        System.out.println("log likelihood " + logLikelihood);
 			N = totalGamma1OverAllObservations.length - 1;
 			
 				for (int k = 0; k < sd_size ; k++){
@@ -427,8 +425,8 @@ public class HMMWithAlignmentTypePOSTag implements Serializable{
 					}
 				}
 		
-			end = System.currentTimeMillis();
-			System.out.println("time spent in the end of E-step: " + (end-start)/1000.0 );
+			long end = System.currentTimeMillis();
+			//System.out.println("time spent in the end of E-step: " + (end-start)/1000.0 );
 			System.out.println("time spent in E-step: " + (end-start0)/1000.0 );
 			
 			twoN = 2*N;
@@ -440,7 +438,7 @@ public class HMMWithAlignmentTypePOSTag implements Serializable{
 			t_table = new HashMap<Pair, Double>();
 			s = new HashMap<Triple<String,String,Integer>, Double>();
 			
-			System.out.println("set " + targetLengthSet);
+			//System.out.println("set " + targetLengthSet);
 			for (int I : targetLengthSet){
 				for (int i = 1; i < I+1; i++){
 					for (int j = 1; j < I+1; j++)
@@ -513,8 +511,7 @@ public class HMMWithAlignmentTypePOSTag implements Serializable{
 				return nullEmissionProb;
 			else
 				return 1.0/V;
-		}
-			//return (count_fe.get(fe) + alpha)/ (count_e.get(e) + alpha*V); 
+		} 
 	}
 	/**
 	 * Smoothes p(i|i',I) probabilities by backing-off to a uniform probability 1/I
@@ -542,7 +539,6 @@ public class HMMWithAlignmentTypePOSTag implements Serializable{
 	 */
 	
 	public double sProbability(String t_f, String t_e, Integer h){
-		//System.out.println("Tag model s probability");
 		Triple<String, String, Integer> f_e_h = new Triple<String, String, Integer>(t_f,t_e,h);
 		double first = (s.containsKey(f_e_h) ? s.get(f_e_h) : 0 );
 		double[] tagDist = {0, 0.401, 0.264, 0.004, 0.004, 0.012, 0.205, 0.031, 0.008, 0.003, 0.086, 0.002};
@@ -563,8 +559,6 @@ public class HMMWithAlignmentTypePOSTag implements Serializable{
 		for (int I : targetLengthSet){
 		    for (int i = 1; i < I+1; i++){
 				for (int j = 1; j < I+1; j++){
-				    //double temp = a[i][j][I];
-				    //a[i][j][I] = (1-p0H)*temp; 
 				    a[i][i + I][I] = p0H;
 		            a[i + I][i + I][I] = p0H;
 		            a[i+I][j][I] = a[i][j][I];

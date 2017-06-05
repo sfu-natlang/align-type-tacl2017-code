@@ -4,12 +4,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map.Entry;
 
-
 public class IBM1WithAlignmentTypePOSTag implements Serializable {
-	
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -2641697232475893704L;
 	HashMap<String, Integer> f_count = new HashMap<String, Integer>();
 	HashMap<String, Integer> e_count = new HashMap<String, Integer>();

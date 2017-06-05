@@ -1,11 +1,6 @@
 import java.io.BufferedWriter;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -65,7 +60,7 @@ public class HMMWithAlignmentTypeNullCorrect extends HMMWithAlignmentTypePOSTag 
 		
 		I = N;
 		
-		System.out.println("N "+N);
+		//System.out.println("N "+N);
 		GenericPair<HashMap<Pair, Integer>, HashMap<Integer, Pair>> indexBiwordPair = mapBitextToInt(sd_count);
 		HashMap<Pair, Integer> indexMap = indexBiwordPair.a;
 		HashMap<Integer, Pair> biword = indexBiwordPair.b;
@@ -118,7 +113,7 @@ public class HMMWithAlignmentTypeNullCorrect extends HMMWithAlignmentTypePOSTag 
 	        		initializeModel(N);
 	        	
 	        	GenericPair<double[][], double[]> alphaHatC = forwardWithTScaled(a, pi, y, N, T, x, t_table);
-	        	long end = System.currentTimeMillis();
+	        	
 	        	
 	        	//long start = end;
 	        	
@@ -127,11 +122,11 @@ public class HMMWithAlignmentTypeNullCorrect extends HMMWithAlignmentTypePOSTag 
 	        	
 	        	
 	        	double[][] beta_hat = backwardWithTScaled(a, pi, y, N, T, x, t_table, c_scaled);
-	        	end = System.currentTimeMillis();
+	        	
 	        	
 	        	double[][] gamma = new double[N+1][T+1];
 	        	
-	        	long start = System.currentTimeMillis();
+	        	
 	        	//Setting gamma
 	        	for (int t = 1; t < T; t++){
 	        		logLikelihood += -1*Math.log(c_scaled[t]);
@@ -172,10 +167,10 @@ public class HMMWithAlignmentTypeNullCorrect extends HMMWithAlignmentTypePOSTag 
 	        			}
         			}
         		}
-	        	end = System.currentTimeMillis();
+	        	
 	        	
 	        	//Setting xi
-	        	start = System.currentTimeMillis();
+	        	
 	        	for (t = 1; t < T; t++)
 	        		for (int i = 1; i < N+1; i++)
 	        			for (int j = 1; j < N+1; j++){
@@ -189,10 +184,10 @@ public class HMMWithAlignmentTypeNullCorrect extends HMMWithAlignmentTypePOSTag 
         						c.put(j-i, xi);
         					}
 	        			}
-	        	end = System.currentTimeMillis();
+	        	
 	        	//System.out.println("time spent to set xi: " + (end-start)/1000.0 );
 	        	
-	        	start = System.currentTimeMillis();
+	        	
 	        	for (int i = 1; i < N+1; i++)
 	        		totalGamma1OverAllObservations[i] += gamma[i][1];
 	        	
@@ -204,10 +199,9 @@ public class HMMWithAlignmentTypeNullCorrect extends HMMWithAlignmentTypePOSTag 
 	        		for (int l = 1; l < N+1; l++)
 	        			totalC_l_Minus_iOverAllObservations[i][N] += (c.containsKey(l-i)? c.get(l-i) : 0);
 	        	}
-	        	end = System.currentTimeMillis();
+	        	
 	        	//System.out.println("time spent to set xi: " + (end-start)/1000.0 );
 	      
-	        	start = System.currentTimeMillis();
 	        		        	
 				
 	        	sentenceNumber++;
@@ -215,9 +209,9 @@ public class HMMWithAlignmentTypeNullCorrect extends HMMWithAlignmentTypePOSTag 
 	        }//end of loop over bitext
 	        long end = System.currentTimeMillis();
 	        
-	        long start = end;
+	        
 
-	        System.out.println("likelihood " + logLikelihood);
+	        System.out.println("log likelihood " + logLikelihood);
 			N = totalGamma1OverAllObservations.length - 1;
 
 			for (int k = 0; k < sd_size ; k++){
@@ -235,12 +229,12 @@ public class HMMWithAlignmentTypeNullCorrect extends HMMWithAlignmentTypePOSTag 
 			
 			
 			end = System.currentTimeMillis();
-			System.out.println("time spent in the end of E-step: " + (end-start)/1000.0 );
+			
 			System.out.println("time spent in E-step: " + (end-start0)/1000.0 );
 			
 			twoN = 2*N;
 			
-			System.out.println("lambdas " + lambda1 + " " + lambda2 + " " + lambda3);
+			//System.out.println("lambdas " + lambda1 + " " + lambda2 + " " + lambda3);
 			
 			//M-Step
 			clearA();
@@ -249,7 +243,7 @@ public class HMMWithAlignmentTypeNullCorrect extends HMMWithAlignmentTypePOSTag 
 			s.clear();
 			
 			
-			System.out.println("set " + targetLengthSet);
+			//System.out.println("set " + targetLengthSet);
 			for (int I : targetLengthSet){
 				for (int i = 1; i < I+1; i++){
 					for (int j = 1; j < I+1; j++)
@@ -276,7 +270,7 @@ public class HMMWithAlignmentTypeNullCorrect extends HMMWithAlignmentTypePOSTag 
 			}
 			
 			long end2 = System.currentTimeMillis();
-			System.out.println("s size " + s.size());
+			//System.out.println("s size " + s.size());
 			System.out.println("time spent in M-step: " + (end2-end)/1000.0 );
 			System.out.println("iteration " + iteration);
 		}	
@@ -294,7 +288,7 @@ public class HMMWithAlignmentTypeNullCorrect extends HMMWithAlignmentTypePOSTag 
 		
 		int V = 163303;
 		
-		if (t_table_20K.containsKey(fe))
+		if (t_table_20K!= null && t_table_20K.containsKey(fe))
 			return t_table_20K.get(fe);
  		else if (t_table.containsKey(fe)){
 			
@@ -497,7 +491,7 @@ public class HMMWithAlignmentTypeNullCorrect extends HMMWithAlignmentTypePOSTag 
 		
 		while (n <= num_lines){
 			
-			System.out.println("VITERBI: line " + (n+1));
+			//System.out.println("VITERBI: line " + (n+1));
 			String[] S = bitext[n][0].trim().split(" ");
 			String[] D = bitext[n][1].trim().split(" ");
 			
@@ -541,32 +535,23 @@ public class HMMWithAlignmentTypeNullCorrect extends HMMWithAlignmentTypePOSTag 
 		return alignmentList;
 	}
 	
-	public static void augmentedModelExperimentMain()throws IOException, ClassNotFoundException{
+	public static void augmentedModelExperimentMain() throws IOException, ClassNotFoundException{
 		
 		int trainingSize = 19987;//20357;//20357;//18000;
-		int testSize = 1956;//1956;//2357;
 		
-/*		String[][] trainTritextTaggedModel = IBM_Model1.readTritext("data-te/train.20k.tags.cn","data-te/train.20k.tags.en","data-te/train.20k.seg.cln.wa",trainingSize);
-		String[][] testTritextTaggedModel = IBM_Model1.readTritext("data-te/test.tags.cn","data-te/test.tags.en","data-te/test.seg.cln.wa",testSize);
-		
-		String[][] trainTritext = IBM_Model1.readTritext("data-te/train.20k.seg.cln.cn","data-te/train.20k.seg.cln.en","data-te/train.20k.seg.cln.wa",trainingSize);
-		String[][] testTritext = IBM_Model1.readTritext("data-te/test.seg.cln.cn","data-te/test.seg.cln.en","data-te/test.seg.cln.wa",testSize);
-*/		
 /**
  * For computing BLEU Score testTritexts are not important. We can even use nulls for them		
  */
 		String[][] trainTritextTaggedModel = IBM_Model1.readTritext("data-jasneet/train.20K.tag.clean.cn","data-jasneet/train.20K.tag.clean.en","data-jasneet/train.20K.seg.cln.clean.wa",trainingSize);
-		String[][] testTritextTaggedModel = null;//IBM_Model1.readTritext("data-te/test.tags.cn","data-te/test.tags.en","data-te/test.seg.cln.wa",testSize);
+		//String[][] testTritextTaggedModel = null;//IBM_Model1.readTritext("data-te/test.tags.cn","data-te/test.tags.en","data-te/test.seg.cln.wa",testSize);
 		
 		String[][] trainTritext = IBM_Model1.readTritext("data-jasneet/train.20K.clean.cn","data-jasneet/train.20K.clean.en","data-jasneet/train.20K.seg.cln.clean.wa",trainingSize);
-		String[][] testTritext = null;//IBM_Model1.readTritext("data-te/test.seg.cln.cn","data-te/test.seg.cln.en","data-te/test.seg.cln.wa",testSize);
+		//String[][] testTritext = null;//IBM_Model1.readTritext("data-te/test.seg.cln.cn","data-te/test.seg.cln.en","data-te/test.seg.cln.wa",testSize);
 
 		double lambda1 = 0.9999999999;
 		double lambda2 = 9.999900827395436E-11;
 		double lambda3 = 1.000000082740371E-15;
-		double lambda4 = 1.0;
 		
-		//HashMap<Triple<String, String, Integer>, Double> s_hmmTaggedModel = runIBMHMMTaggedModel(trainTritextTaggedModel);
 		IBM_Model1 ibm1TaggedModel = new IBM_Model1();
 		IBM_Model1 ibm1 = new IBM_Model1();
 		ibm1TaggedModel.initializeCounts(trainTritextTaggedModel, 0);
@@ -576,8 +561,6 @@ public class HMMWithAlignmentTypeNullCorrect extends HMMWithAlignmentTypePOSTag 
         hmmTaggedModel.baumWelch(trainTritextTaggedModel, ibm1TaggedModel.f_count, ibm1TaggedModel.fe_count);
         hmmTaggedModel.multiplyOneMinusP0H();
         
-        //serializePOSHMM(hmmTaggedModel, "hmm20KTaggedAug2.ser");
-        //serialize_s_POSHMM(hmmTaggedModel.s, "s20KTaggedAug5.ser");
         
         ibm1.initializeCounts(trainTritext, 0);
 		
@@ -591,62 +574,22 @@ public class HMMWithAlignmentTypeNullCorrect extends HMMWithAlignmentTypePOSTag 
 		 
 		hmm20K.multiplyOneMinusP0H();
 		
-		System.out.println("p0H " + hmm20K.p0H + " nullEmissionProb" + hmm20K.nullEmissionProb);
-		
 		hmm20K.setLambdas(lambda1, lambda2, lambda3);
-		
-		
-		
-		
-	//	HMMWithAlignmentTypePOSTag hmmTaggedModel = deserializePOSHMM("hmm20KTaggedAug2.ser");
-		//HMMWithAlignmentTypeNullCorrect hmm20K = deserializeHMM("hmm20KAug2.ser");
-		
-	//	testAndEvaluate20KModel(testSize, testTritextTaggedModel, testTritext,
-	//			lambda1, lambda2, lambda3, lambda4, hmm20K);
 		
 		HashMap<Pair,Double> hmm20k_t_table = new HashMap<Pair, Double>(hmm20K.t_table);
 		
-	//	serializeObject(hmm20k_t_table, "hmm20k_t_tableAug6.ser");
-	//	serializeObject(ibm1, "ibm1_20KAug6.ser");
-	
 		
 		//Augmented Model
 		trainingSize = 1019987;//1020357; 
-		//String[][] train20KHKTritextTaggedModel = IBM_Model1.readTritext("data-te/train.20k+hk.tags.cn","data-te/train.20k+hk.tags.en","data-te/train.20k.seg.cln.wa",trainingSize);
 		String[][] train20KHKTritextTaggedModel = IBM_Model1.readTritext("data-jasneet/train.20K+1M.tag.clean.cn","data-jasneet/train.20K+1M.tag.clean.en","data-jasneet/train.20K.seg.cln.clean.wa",trainingSize);
 		
 		HashMap<Triple<String, String, Integer>, Double> s_hmmTaggedModelHK20K = runIBMHMMGAugmentedTaggedModel(ibm1TaggedModel, ibm1, train20KHKTritextTaggedModel);
-        //serialize_s_POSHMM(s_hmmTaggedModelHK20K, "s_hmmTaggedModelHK20KAug6.ser");
-		//IBM_Model1 ibm1 = (IBM_Model1)deserializeObject("ibm1_20KAug6.ser");
-		//HashMap<Pair,Double> hmm20k_t_table = (HashMap<Pair,Double>)deserializeObject("hmm20k_t_tableAug6.ser");
-        //HashMap<Triple<String, String, Integer>, Double> s_hmmTaggedModelHK20K = deserialize_s_POSHMM("s_hmmTaggedModelHK20KAug6.ser");
-        //serializeObject(s_hmmTaggedModelHK20K,"s_hmmTagged");
-		//HashMap<Triple<String, String, Integer>, Double> s_hmmTaggedModelHK20K = (HashMap<Triple<String, String, Integer>, Double>)deserializeObject("s_hmmTagged");
-        //String[][] train20KHKTritext = IBM_Model1.readTritext("data-te/train.20k+hk.cn","data-te/train.20k+hk.en","data-te/train.20k.seg.cln.wa",trainingSize);
 		String[][] train20KHKTritext = IBM_Model1.readTritext("data-jasneet/train.20K+1M.word.clean.cn","data-jasneet/train.20K+1M.word.clean.en","data-jasneet/train.20K.seg.cln.clean.wa",trainingSize);
 
-        HMMWithAlignmentTypeNullCorrect hmm = runIBMHMMAugmentedModel(lambda1,lambda2, lambda3, ibm1, hmm20k_t_table, s_hmmTaggedModelHK20K,train20KHKTritext,train20KHKTritextTaggedModel); 
-		//serializeHMM(hmm, "hmmWithAlignmentTypeNullCorrect20KHKTaggedAug10.ser");
-		//HMMWithAlignmentTypeNullCorrect hmm = deserializeHMM("hmmWithAlignmentTypeNullCorrect20KHKTaggedAug5.ser");
-    	
-        System.out.println("serialization complete");
-
-		//testAndEvaluateAugmentedModel(trainingSize, testSize,testTritextTaggedModel, testTritext, train20KHKTritextTaggedModel, train20KHKTritext, hmm);
+        runIBMHMMAugmentedModel(lambda1,lambda2, lambda3, ibm1, hmm20k_t_table, s_hmmTaggedModelHK20K,train20KHKTritext,train20KHKTritextTaggedModel); 
 	
 	}
-	private static void testAndEvaluate20KModel(int testSize,
-			String[][] testTritextTaggedModel, String[][] testTritext,
-			double lambda1, double lambda2, double lambda3, double lambda4,
-			HMMWithAlignmentTypeNullCorrect hmm20K)
-			throws IOException {
-		IBM_Model1 ibm1 = new IBM_Model1();
-		ArrayList<String> hmmModelAlignment = hmm20K.findBestAlignmentsForAll_AER(testTritext, testTritextTaggedModel, testSize, "alignment_correct_WA_Task_Aug6", false);
-		ArrayList<String> reference = ibm1.convertFileToArrayList("data/test.seg.cln.gold");
-
-		double fScore = ibm1.gradeAlignmentWithType(testSize, testTritext, reference, hmmModelAlignment);
-		System.out.println("lambdas " + lambda1 + " " + lambda2 + " " + lambda3 + " " + lambda4);
-		System.out.println("F Score: " + fScore);
-	}
+	
 	private static void testAndEvaluateAugmentedModel(int trainingSize,
 			int testSize, String[][] testTritextTaggedModel,
 			String[][] testTritext, 
@@ -670,7 +613,7 @@ public class HMMWithAlignmentTypeNullCorrect extends HMMWithAlignmentTypePOSTag 
 
 		//ArrayList<String> reference = ibm1.convertFileToArrayList("data-te/test.seg.cln.wa");
 		if (referenceAlignmentAndType != null){
-			System.out.println("WA+Tag task");
+			System.out.println("WA+Type task");
 			ArrayList<String> reference = ibm1.convertFileToArrayList(referenceAlignmentAndType);
 
 			ibm1.gradeAlignmentWithTypeWAPlusTag(testSize, testTritext, reference, hmmModelAlignment);
@@ -695,8 +638,8 @@ public class HMMWithAlignmentTypeNullCorrect extends HMMWithAlignmentTypePOSTag 
         
 	    ibm120KHK.initializeCountsWithoutSets(train20KHKTritext);
 	    //ibm120KHK.initializeCounts(train20KHKTritext,0);
-		System.out.println("length " + train20KHKTritext.length);
 		
+	    System.out.println("Training an IBM1 model on the bitext of size " + train20KHKTritext.length + ".");
 		//IBM Model1
 		HashMap<Pair, Double> t_fe_20KHK = ibm1.EM_IBM1(ibm120KHK.f_count, ibm120KHK.e_count, ibm120KHK.fe_count, train20KHKTritext);
 	        
@@ -707,11 +650,11 @@ public class HMMWithAlignmentTypeNullCorrect extends HMMWithAlignmentTypePOSTag 
         hmm.setTTable20K(hmm20K_t_table); 
         
         hmm.setLambdas(lambda1, lambda2, lambda3);
-        
+        System.out.println("Training an HMM model on the bitext of size " + train20KHKTritext.length + ".");
         hmm.baumWelch(train20KHKTritext,train20khkTritextTaggedModel, ibm120KHK.f_count, ibm120KHK.fe_count);
        	hmm.multiplyOneMinusP0H();
        	
-		System.out.println("p0H " + hmm.p0H + " nullEmissionProb" + hmm.nullEmissionProb + "lambda1 " + hmm.lambda1);
+		//System.out.println("p0H " + hmm.p0H + " nullEmissionProb" + hmm.nullEmissionProb + "lambda1 " + hmm.lambda1);
 		return hmm;
 	}
 	private static HashMap<Triple<String, String, Integer>, Double> runIBMHMMGAugmentedTaggedModel(
@@ -722,335 +665,89 @@ public class HMMWithAlignmentTypeNullCorrect extends HMMWithAlignmentTypePOSTag 
         //ibm120KHKTaggedModel.initializeCounts(train20KHKTritextTaggedModel, 0);
         ibm120KHKTaggedModel.initializeCountsWithoutSets(train20KHKTritextTaggedModel);
        
-        System.out.println("length " + train20KHKTritextTaggedModel.length);
+        System.out.println("Training an IBM1 model on the tagged bitext of size " + train20KHKTritextTaggedModel.length + ".");
         HashMap<Pair, Double> t_fe_20KHK_tagged = ibm1.EM_IBM1(ibm120KHKTaggedModel.f_count, ibm120KHKTaggedModel.e_count, ibm120KHKTaggedModel.fe_count, train20KHKTritextTaggedModel);
         
         //HMMWithAlignmentTypePOSTag hmmTaggedModelHK20K = new HMMWithAlignmentTypePOSTag(t_fe_20KHK_tagged, ibm120KHKTaggedModel.e_count, ibm120KHKTaggedModel.total_f_e_h,ibm120KHKTaggedModel.fe_count,);
+        System.out.println("Training an HMM model on the tagged bitext of size " + train20KHKTritextTaggedModel.length + ".");
         HMMWithAlignmentTypePOSTag hmmTaggedModelHK20K = new HMMWithAlignmentTypePOSTag(t_fe_20KHK_tagged, ibm120KHKTaggedModel.e_count, ibm1TaggedModel.total_f_e_h, ibm120KHKTaggedModel.fe_count, ibm1TaggedModel.fe_count);
         hmmTaggedModelHK20K.baumWelch(train20KHKTritextTaggedModel, ibm120KHKTaggedModel.f_count, ibm120KHKTaggedModel.fe_count);
         hmmTaggedModelHK20K.multiplyOneMinusP0H();
 		return hmmTaggedModelHK20K.s;
 	}
 	
-	
-	
-	private static HMMWithAlignmentTypeNullCorrect deserializeHMM(String fileName)
-			throws FileNotFoundException, IOException, ClassNotFoundException {
-		FileInputStream fis2 = new FileInputStream(fileName);
-    	ObjectInputStream ois2 = new ObjectInputStream(fis2);
-    	HMMWithAlignmentTypeNullCorrect hmm = (HMMWithAlignmentTypeNullCorrect) ois2.readObject();
-    	ois2.close();
-		return hmm;
-	}
-	private static HMMWithAlignmentTypePOSTag deserializePOSHMM(String fileName)
-			throws FileNotFoundException, IOException, ClassNotFoundException {
-		FileInputStream fis = new FileInputStream(fileName);
-    	ObjectInputStream ois = new ObjectInputStream(fis);
-    	HMMWithAlignmentTypePOSTag hmmTaggedModelHK20K = (HMMWithAlignmentTypePOSTag) ois.readObject();
-    	ois.close();
-		return hmmTaggedModelHK20K;
-	}
-	@SuppressWarnings("unchecked")
-	private static HashMap<Triple<String, String, Integer>, Double> deserialize_s_POSHMM(String fileName)
-			throws FileNotFoundException, IOException, ClassNotFoundException {
-		FileInputStream fis = new FileInputStream(fileName);
-    	ObjectInputStream ois = new ObjectInputStream(fis);
-    	HashMap<Triple<String, String, Integer>, Double> s = (HashMap<Triple<String, String, Integer>, Double>) ois.readObject();
-    	ois.close();
-		return s;
-	}
-	private static void serializePOSHMM(HMMWithAlignmentTypePOSTag hmmTaggedModel,
-			String fileName) throws IOException {
-		FileOutputStream fos1 = new FileOutputStream(fileName);
-        ObjectOutputStream oos1 = new ObjectOutputStream(fos1);
-        oos1.writeObject(hmmTaggedModel);
-        fos1.close();
-        oos1.close();
-		
-	}
-	private static void serializeObject(Object object,
-			String fileName) throws IOException {
-		FileOutputStream fos1 = new FileOutputStream(fileName);
-        ObjectOutputStream oos1 = new ObjectOutputStream(fos1);
-        oos1.writeObject(object);
-        fos1.close();
-        oos1.close();
-		
-	}
-	@SuppressWarnings("unchecked")
-	private static Object deserializeObject(String fileName)
-			throws FileNotFoundException, IOException, ClassNotFoundException {
-		FileInputStream fis = new FileInputStream(fileName);
-    	ObjectInputStream ois = new ObjectInputStream(fis);
-    	Object object =  ois.readObject();
-    	ois.close();
-		return object;
-	}
-	private static void serialize_s_POSHMM(HashMap<Triple<String, String, Integer>, Double> s,
-			String fileName) throws IOException {
-		FileOutputStream fos1 = new FileOutputStream(fileName);
-        ObjectOutputStream oos1 = new ObjectOutputStream(fos1);
-        oos1.writeObject(s);
-        fos1.close();
-        oos1.close();
-		
-	}
-	private static void serializeHMM(HMMWithAlignmentTypeNullCorrect hmm20K, String fileName)
-			throws FileNotFoundException, IOException {
-		FileOutputStream fos1 = new FileOutputStream(fileName);
-        ObjectOutputStream oos1 = new ObjectOutputStream(fos1);
-        oos1.writeObject(hmm20K);
-        fos1.close();
-        oos1.close();
-	}
+
 	public static void FScoreExperiment1AlignmentTypeMain(int trainingSize, int testSize, String trainPrefix
 			, String sourceLang, String targetLang, String testPrefix, String referenceFile, String output, 
 			String goldTrainPrefix, String POSTaggedTrainPrefix, String POSTaggedTestPrefix, String referenceAlignmentAndType) throws IOException{
 		IBM_Model1 ibm1 = new IBM_Model1();
-		//int trainingSize = 20357;//18000;
-        //int testSize = 1956;//2357;
-	//	String[][] trainTritext = ibm1.readTritext("data/train.20k.seg.cln.cn","data/train.20k.seg.cln.en","data/train.20k.seg.cln.wa",trainingSize);
-	//	String[][] testTritext = ibm1.readTritext("data/test.seg.cln.cn","data/test.seg.cln.en","data/test.seg.cln.wa",testSize);
-	//	String[][] trainTritext = ibm1.readTritext("data-te/train.18k.word.cn","data-te/train.18k.word.en","data-te/train.18k.seg.cln.gold.gold",trainingSize);
-      // String[][] testTritext = ibm1.readTritext("data-te/train.2k.word.cn","data-te/train.2k.word.en","data-te/train.2k.seg.cln.gold.gold",testSize);
-		
         
         IBM_Model1 ibm1TaggedModel = new IBM_Model1();
-		//String[][] trainTritextTaggedModel = ibm1TaggedModel.readTritext("data/train.20k.tags.cn","data/train.20k.tags.en","data/train.20k.seg.cln.wa",trainingSize);
-		//String[][] testTritextTaggedModel = ibm1TaggedModel.readTritext("data/test.2k.tag.cn","data/test.2k.tag.en","data/test.seg.cln.wa",testSize);
-		//String[][] trainTritextTaggedModel = IBM_Model1.readTritext("data-te/train.20k.tags.cn","data-te/train.20k.tags.en","data-te/train.20k.seg.cln.wa",trainingSize);
-		//String[][] testTritextTaggedModel = IBM_Model1.readTritext("data-te/test.tags.cn","data-te/test.tags.en","data-te/test.seg.cln.wa",testSize);
 
 		String[][] trainTritextTaggedModel = IBM_Model1.readTritext(POSTaggedTrainPrefix+"."+sourceLang, POSTaggedTrainPrefix+"."+targetLang, goldTrainPrefix, trainingSize);
 		String[][] testBitextTaggedModel = IBM_Model1.readBitext(POSTaggedTestPrefix+"."+sourceLang, POSTaggedTestPrefix+"."+targetLang, testSize);
-
-//		String[][] trainTritextTaggedModel = ibm1TaggedModel.readTritext("data-te/train.18k.tags.cn","data-te/train.18k.tags.en","data-te/train.18k.seg.cln.gold.gold",trainingSize);
-//		String[][] testTritextTaggedModel = ibm1TaggedModel.readTritext("data-te/train.2k.tags.cn","data-te/train.2k.tags.en","data-te/train.2k.seg.cln.gold.gold",testSize);
 	
 		ibm1TaggedModel.initializeCounts(trainTritextTaggedModel, 0);
+		System.out.println("Training an IBM1 model on the tagged bitext of size " + trainTritextTaggedModel.length + ".");
         HashMap<Pair, Double> t_fe_tagged = ibm1TaggedModel.EM_IBM1(ibm1TaggedModel.f_count, ibm1TaggedModel.e_count, ibm1TaggedModel.fe_count, trainTritextTaggedModel);
   
         HMMWithAlignmentTypePOSTag hmmTaggedModel = new HMMWithAlignmentTypePOSTag(t_fe_tagged, ibm1TaggedModel.e_count, ibm1TaggedModel.total_f_e_h,ibm1TaggedModel.fe_count,ibm1TaggedModel.fe_count);
+        System.out.println("Training an HMM model on the tagged bitext of size " + trainTritextTaggedModel.length + ".");
         hmmTaggedModel.baumWelch(trainTritextTaggedModel, ibm1TaggedModel.f_count, ibm1TaggedModel.fe_count);
         hmmTaggedModel.multiplyOneMinusP0H();
-		//String[][] trainTritext = IBM_Model1.readTritext("data-te/train.20k.seg.cln.cn","data-te/train.20k.seg.cln.en","data-te/train.20k.seg.cln.wa",trainingSize);
-		//String[][] testTritext = IBM_Model1.readTritext("data-te/test.seg.cln.cn","data-te/test.seg.cln.en","data-te/test.seg.cln.wa",testSize);
 		
 		String[][] trainTritext = IBM_Model1.readTritext(trainPrefix+"."+sourceLang, trainPrefix+"."+targetLang, goldTrainPrefix, trainingSize);
 		String[][] testBitext = IBM_Model1.readBitext(testPrefix+"."+sourceLang, testPrefix+"."+targetLang, testSize);
-		
-	//	String[][] trainBitext = ibm1.readBitext("data/train.18k.seg.cln.cn","data/train.18k.seg.cln.en",trainingSize);
-	//	String[][] testBitext = ibm1.readBitext("data/train.2k.seg.cln.cn","data/train.2k.seg.cln.en",testSize);
-		
-	//	HashMap<Triple<String, String, Integer>, Double> hmm_s = hmmTaggedModel.s;
-	//	hmmTaggedModel = null;
-		
+				
 		ibm1.initializeCounts(trainTritext, 0);
-		System.out.println("length " + trainTritext.length);
+		System.out.println("Training an IBM1 model on the bitext of size " + trainTritext.length + ".");
 		HashMap<Pair, Double> t_fe = ibm1.EM_IBM1(ibm1.f_count, ibm1.e_count, ibm1.fe_count, trainTritext);
 		HMMWithAlignmentTypeNullCorrect hmmL = new HMMWithAlignmentTypeNullCorrect(t_fe, ibm1.e_count, ibm1.total_f_e_h,ibm1.fe_count, ibm1.fe_count,hmmTaggedModel.s);
 		hmmL.setLambdas(0.9999999999,9.999900827395436E-11,1.000000082740371E-15);
+		System.out.println("Training an HMM model on the bitext of size " + trainTritext.length + ".");
 		hmmL.baumWelch(trainTritext,trainTritextTaggedModel, ibm1.f_count, ibm1.fe_count);
 		
-		//hmmL.p0H = Double.parseDouble(args[0]);
-		//hmmL.nullEmissionProb = Double.parseDouble(args[1]); 
+ 
 		hmmL.multiplyOneMinusP0H();
 		
-		System.out.println("p0H " + hmmL.p0H + " nullEmissionProb" + hmmL.nullEmissionProb);
 
+
+		double lambda1 = 0.9999999999;
+		double lambda2 = 9.999900827395436E-11;
+		double lambda3 = 1.000000082740371E-15;
 		
-        
-        double[] lambda1s = {1-1e-1,1-1e-5,1-1e-10,1-1e-15,1-1e-20};
-        //double[] lambda2s = {1,1e-5,1e-10,1e-15,1e-20};
-        double[] lambda3Denoms = {1,1.5,2,1e1,1e2,1e3,1e5,1e10,1e15,1e20};
-       // double[] lambda4s = {1,1e-5,1e-10,1e-15, 1e-20};
-/*        double bestFScore = 0;
-        double bestLambda1 = 0;
-        double bestLambda2 = 0;
-        double bestLambda3 = 0;
-        double bestLambda4 = 0;
-*/
-        double lambda4 = 1;
-        
-//	for (double lambda1: lambda1s){
-        //	for (double lambda2: lambda2s){
-  //      		for (double lambda3Denom: lambda3Denoms){
-          //      	for (double lambda4: lambda4s){
-				     //   hmmL.setLambdas(1e-20, 1e-15, 1e-5, 1e-15);
-				     //     hmmL.setLambdas(1e-20,1e-30,1e-25,1e-15);
-				     //     bestLambdas 0.9999999999 9.999900827395436E-11 1.000000082740371E-15
-				     /*		double lambda3 = (1-lambda1)/lambda3Denom;
-						double lambda2 = 1 - lambda1 - lambda3;
-				     */		
-						double lambda1 = 0.9999999999;
-						double lambda2 = 9.999900827395436E-11;
-						double lambda3 = 1.000000082740371E-15;
+		hmmL.setLambdas(lambda1, lambda2, lambda3);
+		
+		ArrayList<String> hmmModelAlignment = hmmL.findBestAlignmentsForAll_AER(testBitext, testBitextTaggedModel, testSize, output, false);
+		
+		if (referenceFile != null){
+			System.out.println("\nWA:");
+			ArrayList<String> reference = ibm1.convertFileToArrayList(referenceFile);
+
+			ibm1.gradeAlignmentWithType(testSize, testBitext, reference, hmmModelAlignment);
+		}
+		hmmModelAlignment = hmmL.findBestAlignmentsForAll_AER(testBitext, testBitextTaggedModel, testSize, output+".type", true);
+		
+		if (referenceAlignmentAndType != null){
+			System.out.println("\nWA+Type:");
+			ArrayList<String> reference = ibm1.convertFileToArrayList(referenceAlignmentAndType);
+		
+			ibm1.gradeAlignmentWithTypeWAPlusTag(testSize, testBitext, reference, hmmModelAlignment);
+		}
 						
-						hmmL.setLambdas(lambda1, lambda2, lambda3);
-						
-						ArrayList<String> hmmModelAlignment = hmmL.findBestAlignmentsForAll_AER(testBitext, testBitextTaggedModel, testSize, output, false);
-						//ArrayList<String> reference = ibm1.convertFileToArrayList("data/test.seg.cln.gold");
-						if (referenceFile != null){
-							System.out.println("\n WA:");
-							ArrayList<String> reference = ibm1.convertFileToArrayList(referenceFile);
-				//		ArrayList<String> reference = ibm1.convertFileToArrayList("data-te/train.2k.seg.cln.gold.wa");
-						//ArrayList<String> reference = ibm1.convertFileToArrayList("data-te/test.seg.cln.wa");
-						///double fScore = ibm1.gradeAlignmentWithTypeWAPlusTag(testSize, testTritext, reference, hmmModelAlignment);
-							ibm1.gradeAlignmentWithType(testSize, testBitext, reference, hmmModelAlignment);
-						}
-						hmmModelAlignment = hmmL.findBestAlignmentsForAll_AER(testBitext, testBitextTaggedModel, testSize, output+".type", true);
-						//reference = ibm1.convertFileToArrayList("data-te/test.seg.cln.wa");
-						if (referenceAlignmentAndType != null){
-							System.out.println("\n WA+Tag:");
-							ArrayList<String> reference = ibm1.convertFileToArrayList(referenceAlignmentAndType);
-						
-							ibm1.gradeAlignmentWithTypeWAPlusTag(testSize, testBitext, reference, hmmModelAlignment);
-						}
-						//System.out.println("lambdas " + lambda1 + " " + lambda2 + " " + lambda3 + " " + lambda4);
-					/*	if (fScore >= bestFScore){
-							bestFScore = fScore;
-							bestLambda1 = lambda1;
-							bestLambda2 = lambda2;
-							bestLambda3 = lambda3;
-							bestLambda4 = lambda4;
-						}
-        			*/
-    //            	}
-        		//}
-        	//}
-      //  }
-      //  System.out.println("best FScore " + bestFScore);
-      //  System.out.println("bestLambdas " + bestLambda1 + " " + bestLambda2 + " " + bestLambda3 + " " + bestLambda4);
 	
 	}
-	public static void FScoreExperiment1AlignmentTypeMain(String[] args) throws IOException, ClassNotFoundException{
-		IBM_Model1 ibm1 = new IBM_Model1();
-		int trainingSize = 20357;//18000;
-        int testSize = 1956;//2357;
-	//	String[][] trainTritext = ibm1.readTritext("data/train.20k.seg.cln.cn","data/train.20k.seg.cln.en","data/train.20k.seg.cln.wa",trainingSize);
-	//	String[][] testTritext = ibm1.readTritext("data/test.seg.cln.cn","data/test.seg.cln.en","data/test.seg.cln.wa",testSize);
-	//	String[][] trainTritext = ibm1.readTritext("data-te/train.18k.word.cn","data-te/train.18k.word.en","data-te/train.18k.seg.cln.gold.gold",trainingSize);
-      // String[][] testTritext = ibm1.readTritext("data-te/train.2k.word.cn","data-te/train.2k.word.en","data-te/train.2k.seg.cln.gold.gold",testSize);
-		
-        
-        IBM_Model1 ibm1TaggedModel = new IBM_Model1();
-		//String[][] trainTritextTaggedModel = ibm1TaggedModel.readTritext("data/train.20k.tags.cn","data/train.20k.tags.en","data/train.20k.seg.cln.wa",trainingSize);
-		//String[][] testTritextTaggedModel = ibm1TaggedModel.readTritext("data/test.2k.tag.cn","data/test.2k.tag.en","data/test.seg.cln.wa",testSize);
-		String[][] trainTritextTaggedModel = IBM_Model1.readTritext("data-te/train.20k.tags.cn","data-te/train.20k.tags.en","data-te/train.20k.seg.cln.wa",trainingSize);
-		String[][] testTritextTaggedModel = IBM_Model1.readTritext("data-te/test.tags.cn","data-te/test.tags.en","data-te/test.seg.cln.wa",testSize);
-
-//		String[][] trainTritextTaggedModel = ibm1TaggedModel.readTritext("data-te/train.18k.tags.cn","data-te/train.18k.tags.en","data-te/train.18k.seg.cln.gold.gold",trainingSize);
-//		String[][] testTritextTaggedModel = ibm1TaggedModel.readTritext("data-te/train.2k.tags.cn","data-te/train.2k.tags.en","data-te/train.2k.seg.cln.gold.gold",testSize);
 	
-		ibm1TaggedModel.initializeCounts(trainTritextTaggedModel, 0);
-        HashMap<Pair, Double> t_fe_tagged = ibm1TaggedModel.EM_IBM1(ibm1TaggedModel.f_count, ibm1TaggedModel.e_count, ibm1TaggedModel.fe_count, trainTritextTaggedModel);
-  
-        HMMWithAlignmentTypePOSTag hmmTaggedModel = new HMMWithAlignmentTypePOSTag(t_fe_tagged, ibm1TaggedModel.e_count, ibm1TaggedModel.total_f_e_h,ibm1TaggedModel.fe_count,ibm1TaggedModel.fe_count);
-        hmmTaggedModel.baumWelch(trainTritextTaggedModel, ibm1TaggedModel.f_count, ibm1TaggedModel.fe_count);
-        hmmTaggedModel.multiplyOneMinusP0H();
-		String[][] trainTritext = IBM_Model1.readTritext("data-te/train.20k.seg.cln.cn","data-te/train.20k.seg.cln.en","data-te/train.20k.seg.cln.wa",trainingSize);
-		String[][] testTritext = IBM_Model1.readTritext("data-te/test.seg.cln.cn","data-te/test.seg.cln.en","data-te/test.seg.cln.wa",testSize);
-	//	String[][] trainBitext = ibm1.readBitext("data/train.18k.seg.cln.cn","data/train.18k.seg.cln.en",trainingSize);
-	//	String[][] testBitext = ibm1.readBitext("data/train.2k.seg.cln.cn","data/train.2k.seg.cln.en",testSize);
-		
-	//	HashMap<Triple<String, String, Integer>, Double> hmm_s = hmmTaggedModel.s;
-	//	hmmTaggedModel = null;
-		
-		ibm1.initializeCounts(trainTritext, 0);
-		System.out.println("length " + trainTritext.length);
-		HashMap<Pair, Double> t_fe = ibm1.EM_IBM1(ibm1.f_count, ibm1.e_count, ibm1.fe_count, trainTritext);
-		HMMWithAlignmentTypeNullCorrect hmmL = new HMMWithAlignmentTypeNullCorrect(t_fe, ibm1.e_count, ibm1.total_f_e_h,ibm1.fe_count, ibm1.fe_count,hmmTaggedModel.s);
-		hmmL.setLambdas(0.9999999999,9.999900827395436E-11,1.000000082740371E-15);
-		hmmL.baumWelch(trainTritext,trainTritextTaggedModel, ibm1.f_count, ibm1.fe_count);
-		
-		//hmmL.p0H = Double.parseDouble(args[0]);
-		//hmmL.nullEmissionProb = Double.parseDouble(args[1]); 
-		hmmL.multiplyOneMinusP0H();
-		
-		System.out.println("p0H " + hmmL.p0H + " nullEmissionProb" + hmmL.nullEmissionProb);
-
-		
-        
-        double[] lambda1s = {1-1e-1,1-1e-5,1-1e-10,1-1e-15,1-1e-20};
-        //double[] lambda2s = {1,1e-5,1e-10,1e-15,1e-20};
-        double[] lambda3Denoms = {1,1.5,2,1e1,1e2,1e3,1e5,1e10,1e15,1e20};
-       // double[] lambda4s = {1,1e-5,1e-10,1e-15, 1e-20};
-        double bestFScore = 0;
-        double bestLambda1 = 0;
-        double bestLambda2 = 0;
-        double bestLambda3 = 0;
-        double bestLambda4 = 0;
-
-        double lambda4 = 1;
-        
-//	for (double lambda1: lambda1s){
-        //	for (double lambda2: lambda2s){
-  //      		for (double lambda3Denom: lambda3Denoms){
-          //      	for (double lambda4: lambda4s){
-				     //   hmmL.setLambdas(1e-20, 1e-15, 1e-5, 1e-15);
-				     //     hmmL.setLambdas(1e-20,1e-30,1e-25,1e-15);
-				     //     bestLambdas 0.9999999999 9.999900827395436E-11 1.000000082740371E-15
-				     /*		double lambda3 = (1-lambda1)/lambda3Denom;
-						double lambda2 = 1 - lambda1 - lambda3;
-				     */		
-						double lambda1 = 0.9999999999;
-						double lambda2 = 9.999900827395436E-11;
-						double lambda3 = 1.000000082740371E-15;
-						
-						hmmL.setLambdas(lambda1, lambda2, lambda3);
-						
-						ArrayList<String> hmmModelAlignment = hmmL.findBestAlignmentsForAll_AER(testTritext, testTritextTaggedModel, testSize, "alignment_te_WA_Task", false);
-						ArrayList<String> reference = ibm1.convertFileToArrayList("data/test.seg.cln.gold");
-				//		ArrayList<String> reference = ibm1.convertFileToArrayList("data-te/train.2k.seg.cln.gold.wa");
-						//ArrayList<String> reference = ibm1.convertFileToArrayList("data-te/test.seg.cln.wa");
-						///double fScore = ibm1.gradeAlignmentWithTypeWAPlusTag(testSize, testTritext, reference, hmmModelAlignment);
-						double fScore = ibm1.gradeAlignmentWithType(testSize, testTritext, reference, hmmModelAlignment);
-
-						hmmModelAlignment = hmmL.findBestAlignmentsForAll_AER(testTritext, testTritextTaggedModel, testSize, "alignment_te_WA+Tag_Task", true);
-						reference = ibm1.convertFileToArrayList("data-te/test.seg.cln.wa");
-
-						fScore = ibm1.gradeAlignmentWithTypeWAPlusTag(testSize, testTritext, reference, hmmModelAlignment);
-
-						System.out.println("lambdas " + lambda1 + " " + lambda2 + " " + lambda3 + " " + lambda4);
-						if (fScore >= bestFScore){
-							bestFScore = fScore;
-							bestLambda1 = lambda1;
-							bestLambda2 = lambda2;
-							bestLambda3 = lambda3;
-							bestLambda4 = lambda4;
-						}
-        
-    //            	}
-        		//}
-        	//}
-      //  }
-        System.out.println("best FScore " + bestFScore);
-        System.out.println("bestLambdas " + bestLambda1 + " " + bestLambda2 + " " + bestLambda3 + " " + bestLambda4);
-	
-	}
 	public static void augmentedModelExperiment(int trainingSize, int testSize, String trainPrefix
 			, String sourceLang, String targetLang, String testPrefix, String referenceFile, String alignmentFile, 
 			String goldTrain, String POSTaggedTrainPrefix, String POSTaggedTestPrefix, String referenceAlignmentAndType
 			, String augmentedTrainPrefix, String POSTaggedAugmentedTrainPrefix, int augmentedTrainSize) throws IOException, ClassNotFoundException{
-	//	int trainingSize = 19987;//20357;//18000;
-    //    int testSize = 1956;//2357;
-
-/*      String[][] trainTritextTaggedModel = IBM_Model1.readTritext("data-te/train.20k.tags.en","data-te/train.20k.tags.cn","data-te/train.20k.en-cn.seg.cln.wa",trainingSize);
-        String[][] testTritextTaggedModel = IBM_Model1.readTritext("data-te/test.tags.en","data-te/test.tags.cn","data-te/test.seg.cln.wa",testSize);
-
-        String[][] trainTritext = IBM_Model1.readTritext("data-te/train.20k.seg.cln.en","data-te/train.20k.seg.cln.cn","data-te/train.20k.en-cn.seg.cln.wa",trainingSize);
-        String[][] testTritext = IBM_Model1.readTritext("data-te/test.seg.cln.en","data-te/test.seg.cln.cn","data-te/test.seg.cln.wa",testSize);
-*//**
+/**
  * For computing BLEU Score testTritexts are not important. We can even use nulls for them		
  */
-	//	String[][] trainTritextTaggedModel = IBM_Model1.readTritext("data-jasneet/train.20K.tag.clean.en","data-jasneet/train.20K.tag.clean.cn","data-jasneet/train.20K.en-cn.seg.cln.clean.wa",trainingSize);
-	//	String[][] testTritextTaggedModel = null;//IBM_Model1.readTritext("data-te/test.tags.cn","data-te/test.tags.en","data-te/test.seg.cln.wa",testSize);
-		
+	
 		String[][] trainTritextTaggedModel = IBM_Model1.readTritext(POSTaggedTrainPrefix+"."+sourceLang, POSTaggedTrainPrefix+"."+targetLang, goldTrain, trainingSize);
 		String[][] testBitextTaggedModel = IBM_Model1.readBitext(POSTaggedTestPrefix+"."+sourceLang, POSTaggedTestPrefix+"."+targetLang, testSize);
-		
-	//	String[][] trainTritext = IBM_Model1.readTritext("data-jasneet/train.20K.clean.en","data-jasneet/train.20K.clean.cn","data-jasneet/train.20K.en-cn.seg.cln.clean.wa",trainingSize);
-	//	String[][] testTritext = null;//IBM_Model1.readTritext("data-te/test.seg.cln.cn","data-te/test.seg.cln.en","data-te/test.seg.cln.wa",testSize);
 		
 		String[][] trainTritext = IBM_Model1.readTritext(trainPrefix+"."+sourceLang, trainPrefix+"."+targetLang, goldTrain, trainingSize);
 		String[][] testBitext = IBM_Model1.readBitext(testPrefix+"."+sourceLang, testPrefix+"."+targetLang, testSize);
@@ -1060,69 +757,46 @@ public class HMMWithAlignmentTypeNullCorrect extends HMMWithAlignmentTypePOSTag 
         double lambda2 = 9.999900827395436E-11;
         double lambda3 = 1.000000082740371E-15;
         
-        //HashMap<Triple<String, String, Integer>, Double> s_hmmTaggedModel = runIBMHMMTaggedModel(trainTritextTaggedModel);
         IBM_Model1 ibm1TaggedModel = new IBM_Model1();
         IBM_Model1 ibm1 = new IBM_Model1();
         ibm1TaggedModel.initializeCounts(trainTritextTaggedModel, 0);
+        System.out.println("Training an IBM1 model on the tagged bitext of size " + trainTritextTaggedModel.length + ".");
         HashMap<Pair, Double> t_fe_tagged = ibm1TaggedModel.EM_IBM1(ibm1TaggedModel.f_count, ibm1TaggedModel.e_count, ibm1TaggedModel.fe_count, trainTritextTaggedModel);
   
+        System.out.println("Training an HMM model on the tagged bitext of size " + trainTritextTaggedModel.length + ".");
         HMMWithAlignmentTypePOSTag hmmTaggedModel = new HMMWithAlignmentTypePOSTag(t_fe_tagged, ibm1TaggedModel.e_count, ibm1TaggedModel.total_f_e_h,ibm1TaggedModel.fe_count,ibm1TaggedModel.fe_count);
         hmmTaggedModel.baumWelch(trainTritextTaggedModel, ibm1TaggedModel.f_count, ibm1TaggedModel.fe_count);
         hmmTaggedModel.multiplyOneMinusP0H();
         
-        //serializePOSHMM(hmmTaggedModel, "hmm20KTaggedAug2.ser");
-        //serialize_s_POSHMM(hmmTaggedModel.s, "s20KTaggedAug5.ser");
-        
+   
         ibm1.initializeCounts(trainTritext, 0);
                 
-        System.out.println("length " + trainTritext.length);
         
+        System.out.println("Training an IBM1 model on the bitext of size " + trainTritext.length + ".");
         HashMap<Pair, Double> t_fe = ibm1.EM_IBM1(ibm1.f_count, ibm1.e_count, ibm1.fe_count, trainTritext);
         
+        System.out.println("Training an HMM model on the bitext of size " + trainTritext.length + ".");
         HMMWithAlignmentTypeNullCorrect hmm20K = new HMMWithAlignmentTypeNullCorrect(t_fe, ibm1.e_count, ibm1.total_f_e_h,ibm1.fe_count, ibm1.fe_count,hmmTaggedModel.s);
         hmm20K.setLambdas(0.9999999999,9.999900827395436E-11,1.000000082740371E-15);
         hmm20K.baumWelch(trainTritext,trainTritextTaggedModel, ibm1.f_count, ibm1.fe_count);
          
         hmm20K.multiplyOneMinusP0H();
         
-        System.out.println("p0H " + hmm20K.p0H + " nullEmissionProb" + hmm20K.nullEmissionProb);
         
         hmm20K.setLambdas(lambda1, lambda2, lambda3);
-            
-//      HMMWithAlignmentTypePOSTag hmmTaggedModel = deserializePOSHMM("hmm20KTaggedAug2.ser");
-//		HMMWithAlignmentTypeNullCorrect hmm20K = deserializeHMM("hmm20KAug2.ser");
-                
-        //testAndEvaluate20KModel(testSize, testTritextTaggedModel, testTritext,lambda1, lambda2, lambda3, lambda4, hmm20K);
+        
                 
         HashMap<Pair,Double> hmm20k_t_table = new HashMap<Pair, Double>(hmm20K.t_table);
                 
-//        serializeObject(hmm20k_t_table, "hmm20k_t_tableAug6.ser");
-//        serializeObject(ibm1, "ibm1_20KAug6.ser");
 
         //Augmented Model
-        //trainingSize = 1019987;
-        //String[][] train20KHKTritextTaggedModel = IBM_Model1.readTritext("data-te/train.20k+hk.tags.en","data-te/train.20k+hk.tags.cn","data-te/train.20k.en-cn.seg.cln.wa",trainingSize);
-        //String[][] train20KHKTritextTaggedModel = IBM_Model1.readTritext("data-jasneet/train.20K+1M.tag.clean.en","data-jasneet/train.20K+1M.tag.clean.cn","data-jasneet/train.20K.en-cn.seg.cln.clean.wa",trainingSize);
         String[][] train20KHKTritextTaggedModel = IBM_Model1.readTritext(POSTaggedAugmentedTrainPrefix+"."+sourceLang,POSTaggedAugmentedTrainPrefix+"."+targetLang,goldTrain,augmentedTrainSize);
         
         HashMap<Triple<String, String, Integer>, Double> s_hmmTaggedModelHK20K = runIBMHMMGAugmentedTaggedModel(ibm1TaggedModel, ibm1, train20KHKTritextTaggedModel);
-        //serialize_s_POSHMM(s_hmmTaggedModelHK20K, "s_hmmTaggedModelHK20KAug6.ser");
-        
-//      IBM_Model1 ibm1 = (IBM_Model1)deserializeObject("ibm1_20KAug6.ser");
-//      HashMap<Pair,Double> hmm20k_t_table = (HashMap<Pair,Double>)deserializeObject("hmm20k_t_tableAug6.ser");
-//      HashMap<Triple<String, String, Integer>, Double> s_hmmTaggedModelHK20K = deserialize_s_POSHMM("s_hmmTaggedModelHK20KAug6.ser");
-//		serializeObject(s_hmmTaggedModelHK20K,"s_hmmTagged");
-        //HashMap<Triple<String, String, Integer>, Double> s_hmmTaggedModelHK20K = (HashMap<Triple<String, String, Integer>, Double>)deserializeObject("s_hmmTagged");
-        //String[][] train20KHKTritext = IBM_Model1.readTritext("data-te/train.20k+hk.en","data-te/train.20k+hk.cn","data-te/train.20k.en-cn.seg.cln.wa",trainingSize);
-        //String[][] train20KHKTritext = IBM_Model1.readTritext("data-jasneet/train.20K+1M.word.clean.en","data-jasneet/train.20K+1M.word.clean.cn","data-jasneet/train.20K.en-cn.seg.cln.clean.wa",trainingSize);
+       
         String[][] train20KHKTritext = IBM_Model1.readTritext(augmentedTrainPrefix+"."+sourceLang, augmentedTrainPrefix+"."+targetLang,goldTrain, augmentedTrainSize);
 
         HMMWithAlignmentTypeNullCorrect hmm = runIBMHMMAugmentedModel(lambda1,lambda2, lambda3, ibm1, hmm20k_t_table, s_hmmTaggedModelHK20K,train20KHKTritext,train20KHKTritextTaggedModel);
-//      serializeHMM(hmm, "hmmWithAlignmentTypeNullCorrect20KHKTaggedAug10.ser");
-        //HMMWithAlignmentTypeNullCorrect hmm = deserializeHMM("hmmWithAlignmentTypeNullCorrect20KHKTaggedAug5.ser");
-
-        //System.out.println("serialization complete");
-
         testAndEvaluateAugmentedModel(trainingSize, testSize,testBitextTaggedModel, testBitext,train20KHKTritextTaggedModel, train20KHKTritext, hmm, referenceFile, referenceAlignmentAndType, alignmentFile);
 		
 	}
@@ -1130,12 +804,7 @@ public static void augmentedReverseModelExperiment() throws IOException, ClassNo
 	int trainingSize = 19987;//20357;//18000;
         int testSize = 1956;//2357;
 
-/*      String[][] trainTritextTaggedModel = IBM_Model1.readTritext("data-te/train.20k.tags.en","data-te/train.20k.tags.cn","data-te/train.20k.en-cn.seg.cln.wa",trainingSize);
-        String[][] testTritextTaggedModel = IBM_Model1.readTritext("data-te/test.tags.en","data-te/test.tags.cn","data-te/test.seg.cln.wa",testSize);
-
-        String[][] trainTritext = IBM_Model1.readTritext("data-te/train.20k.seg.cln.en","data-te/train.20k.seg.cln.cn","data-te/train.20k.en-cn.seg.cln.wa",trainingSize);
-        String[][] testTritext = IBM_Model1.readTritext("data-te/test.seg.cln.en","data-te/test.seg.cln.cn","data-te/test.seg.cln.wa",testSize);
-*//**
+/**
  * For computing BLEU Score testTritexts are not important. We can even use nulls for them		
  */
 		String[][] trainTritextTaggedModel = IBM_Model1.readTritext("data-jasneet/train.20K.tag.clean.en","data-jasneet/train.20K.tag.clean.cn","data-jasneet/train.20K.en-cn.seg.cln.clean.wa",trainingSize);
@@ -1148,9 +817,8 @@ public static void augmentedReverseModelExperiment() throws IOException, ClassNo
         double lambda1 = 0.9999999999;
         double lambda2 = 9.999900827395436E-11;
         double lambda3 = 1.000000082740371E-15;
-        double lambda4 = 1.0;
         
-        //HashMap<Triple<String, String, Integer>, Double> s_hmmTaggedModel = runIBMHMMTaggedModel(trainTritextTaggedModel);
+        
         IBM_Model1 ibm1TaggedModel = new IBM_Model1();
         IBM_Model1 ibm1 = new IBM_Model1();
         ibm1TaggedModel.initializeCounts(trainTritextTaggedModel, 0);
@@ -1160,8 +828,6 @@ public static void augmentedReverseModelExperiment() throws IOException, ClassNo
         hmmTaggedModel.baumWelch(trainTritextTaggedModel, ibm1TaggedModel.f_count, ibm1TaggedModel.fe_count);
         hmmTaggedModel.multiplyOneMinusP0H();
         
-        //serializePOSHMM(hmmTaggedModel, "hmm20KTaggedAug2.ser");
-        //serialize_s_POSHMM(hmmTaggedModel.s, "s20KTaggedAug5.ser");
         
         ibm1.initializeCounts(trainTritext, 0);
                 
@@ -1179,43 +845,20 @@ public static void augmentedReverseModelExperiment() throws IOException, ClassNo
         
         hmm20K.setLambdas(lambda1, lambda2, lambda3);
             
-//      HMMWithAlignmentTypePOSTag hmmTaggedModel = deserializePOSHMM("hmm20KTaggedAug2.ser");
-//		HMMWithAlignmentTypeNullCorrect hmm20K = deserializeHMM("hmm20KAug2.ser");
-                
-        //testAndEvaluate20KModel(testSize, testTritextTaggedModel, testTritext,lambda1, lambda2, lambda3, lambda4, hmm20K);
                 
         HashMap<Pair,Double> hmm20k_t_table = new HashMap<Pair, Double>(hmm20K.t_table);
                 
-//        serializeObject(hmm20k_t_table, "hmm20k_t_tableAug6.ser");
-//        serializeObject(ibm1, "ibm1_20KAug6.ser");
-
         //Augmented Model
         trainingSize = 1019987;
-        //String[][] train20KHKTritextTaggedModel = IBM_Model1.readTritext("data-te/train.20k+hk.tags.en","data-te/train.20k+hk.tags.cn","data-te/train.20k.en-cn.seg.cln.wa",trainingSize);
+
         String[][] train20KHKTritextTaggedModel = IBM_Model1.readTritext("data-jasneet/train.20K+1M.tag.clean.en","data-jasneet/train.20K+1M.tag.clean.cn","data-jasneet/train.20K.en-cn.seg.cln.clean.wa",trainingSize);
         
         HashMap<Triple<String, String, Integer>, Double> s_hmmTaggedModelHK20K = runIBMHMMGAugmentedTaggedModel(ibm1TaggedModel, ibm1, train20KHKTritextTaggedModel);
-        //serialize_s_POSHMM(s_hmmTaggedModelHK20K, "s_hmmTaggedModelHK20KAug6.ser");
-        
-//      IBM_Model1 ibm1 = (IBM_Model1)deserializeObject("ibm1_20KAug6.ser");
-//      HashMap<Pair,Double> hmm20k_t_table = (HashMap<Pair,Double>)deserializeObject("hmm20k_t_tableAug6.ser");
-//      HashMap<Triple<String, String, Integer>, Double> s_hmmTaggedModelHK20K = deserialize_s_POSHMM("s_hmmTaggedModelHK20KAug6.ser");
-//		serializeObject(s_hmmTaggedModelHK20K,"s_hmmTagged");
-        //HashMap<Triple<String, String, Integer>, Double> s_hmmTaggedModelHK20K = (HashMap<Triple<String, String, Integer>, Double>)deserializeObject("s_hmmTagged");
-        //String[][] train20KHKTritext = IBM_Model1.readTritext("data-te/train.20k+hk.en","data-te/train.20k+hk.cn","data-te/train.20k.en-cn.seg.cln.wa",trainingSize);
         String[][] train20KHKTritext = IBM_Model1.readTritext("data-jasneet/train.20K+1M.word.clean.en","data-jasneet/train.20K+1M.word.clean.cn","data-jasneet/train.20K.en-cn.seg.cln.clean.wa",trainingSize);
 
         HMMWithAlignmentTypeNullCorrect hmm = runIBMHMMAugmentedModel(lambda1,lambda2, lambda3, ibm1, hmm20k_t_table, s_hmmTaggedModelHK20K,train20KHKTritext,train20KHKTritextTaggedModel);
-//      serializeHMM(hmm, "hmmWithAlignmentTypeNullCorrect20KHKTaggedAug10.ser");
-        //HMMWithAlignmentTypeNullCorrect hmm = deserializeHMM("hmmWithAlignmentTypeNullCorrect20KHKTaggedAug5.ser");
-
-        //System.out.println("serialization complete");
 
         testAndEvaluateAugmentedModel(trainingSize, testSize,testTritextTaggedModel, testTritext,train20KHKTritextTaggedModel, train20KHKTritext, hmm, "", "", "alignment");
 	}
-	public static void main(String[] args) throws IOException, ClassNotFoundException {
-		augmentedModelExperimentMain();
-		//FScoreExperiment1AlignmentTypeMain(args);
-		//augmentedReverseModelExperiment();
-	}
+	
 }

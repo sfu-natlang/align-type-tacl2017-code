@@ -6,7 +6,6 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.*;
 
 public class Main {
 	public static void main(String[] args) throws IOException, ClassNotFoundException {
@@ -16,10 +15,7 @@ public class Main {
 		CommandLineParser parser = new DefaultParser();
 		
 		CommandLine commandLine;
-	/*	Option option_A = Option.builder("A").required(true).desc("The A option").longOpt("opt3").hasArgs().build();
-		Option option_r = Option.builder("r").required(true).desc("The r option").longOpt("opt1").build();
-		Option option_test = Option.builder().required(true).desc("The test option").longOpt("test").build();
-	*/	
+		
 		Option optionTrain = new Option("train", "train", true, "training file prefix");
 		optionTrain.setRequired(true);
         options.addOption(optionTrain);
@@ -79,7 +75,7 @@ public class Main {
         //java -jar type-aligner.jar --train data-te/train.20k.seg.cln --test data-te/test.seg.cln --source cn --target en --trainSize 203 --testSize 19 --model ibm1 --reference data-te/test.seg.cln.gold.wa
 		//String[] testArgs = {"--train","asd","-r","opt1","--test","-A","opt3",};
         // For ant run: java -cp bin/.:lib/commons-cli-1.4.jar Main --train data-te/train.20k ...
-		String[] testArgs = {"--train", "data-te/train.20k.seg.cln", 
+		/*String[] testArgs = {"--train", "data-te/train.20k.seg.cln", 
 				"--source", "cn",
 				"--target", "en",
 				"--test","data-te/test.seg.cln",
@@ -95,29 +91,21 @@ public class Main {
 			//	"--POSTaggedTest","data-te/test.tags",
 			//	"--referenceAlignmentAndType","data-te/test.seg.cln.wa",
 				};
-				
-	/*	options.addOption(option_A);
-		options.addOption(option_r);
-		options.addOption(option_test);
-	*/	int trainingSize = 0;
+		*/	
+	
+		int trainingSize = 0;
 		int testSize = 0;
 		int augmentedTrainSize = 0;
 		String augmentedTrain = "";
 		String goldTrain = "";
 		String POSTaggedTrain = "";
 		String POSTaggedTest = "";
-		//String refere
 		String referenceAlignmentAndType = "";
 		String POSTaggedAugmentedTrain = "";
 		
 		try{
 			commandLine = parser.parse(options, args);
-			if (commandLine.hasOption("A"))
-				System.out.println("option A is present and the value is " + commandLine.getOptionValue("A"));
-			if (commandLine.hasOption("test"))
-				System.out.println("option test is present and this is a flag option");
-			if (commandLine.hasOption("i"))
-				System.out.println("with i " + commandLine.getOptionValue("i"));
+			
 			if (commandLine.hasOption("trainSize"))
 				trainingSize = Integer.parseInt(commandLine.getOptionValue("trainSize"));
 			if (commandLine.hasOption("testSize"))
@@ -127,7 +115,7 @@ public class Main {
 				POSTaggedTrain = commandLine.getOptionValue("POSTaggedTrain");
 				POSTaggedTest = commandLine.getOptionValue("POSTaggedTest");
 				POSTaggedAugmentedTrain = commandLine.getOptionValue("POSTaggedAugmentedTrain");
-				System.out.println(goldTrain + " " + POSTaggedTrain + " " + POSTaggedTest+" " + POSTaggedAugmentedTrain);
+				//System.out.println(goldTrain + " " + POSTaggedTrain + " " + POSTaggedTest+" " + POSTaggedAugmentedTrain);
 				if (goldTrain.equals("") || POSTaggedTrain.equals("") || POSTaggedTest.equals("")){
 					System.err.println("To train an alignment model with alignment type, the following arguments are required: \n" +
 							"goldTrain, POSTaggedTrain and POSTaggedTest.");
@@ -143,7 +131,7 @@ public class Main {
 			String output = sourceLang + "-" + targetLang + ".wa";
 			if (commandLine.hasOption("output"))
 				output = commandLine.getOptionValue("output");
-			//write a code to fix for null ref
+			
 			String referenceFile = commandLine.getOptionValue("reference");
 			if (commandLine.hasOption("augmentedTrainSize"))
 				augmentedTrainSize = Integer.parseInt(commandLine.getOptionValue("augmentedTrainSize"));
